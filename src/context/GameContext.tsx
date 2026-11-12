@@ -24,6 +24,7 @@ type SubmissionFeedback = {
 type GameContextValue = {
 	puzzle: typeof mockPuzzleDefinition;
 	progress: GameProgress;
+	isClickPlacementEnabled: boolean;
 	selectedRackTileId: RackTileId | null;
 	placementValidation: PlacementValidation;
 	submissionFeedback: SubmissionFeedback;
@@ -44,6 +45,7 @@ const CELL_DROP_PREFIX = "cell:";
 const TRAY_DROP_ID = "tray-dropzone";
 const RACK_TILE_DND_TYPE = "rack-tile";
 const MAX_ATTEMPTS = 5;
+const ENABLE_CLICK_PLACEMENT = false;
 
 const getStorageKey = (puzzleId: string) => `${STORAGE_KEY_PREFIX}${puzzleId}`;
 
@@ -230,12 +232,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const isRackTileInUse = useCallback((rackTileId: RackTileId) => placedTiles.some(tile => tile.rackTileId === rackTileId), [placedTiles]);
 
 	const onRackTileClick = useCallback((rackTileId: RackTileId) => {
+		if (!ENABLE_CLICK_PLACEMENT) return;
 		if (suppressClickRef.current) return;
 		setSelectedRackTileId(current => (current === rackTileId ? null : rackTileId));
 	}, []);
 
 	const onBoardCellClick = useCallback(
 		(cellId: CellId) => {
+			if (!ENABLE_CLICK_PLACEMENT) return;
 			if (suppressClickRef.current) return;
 			if (selectedRackTileId) {
 				placeTileOnCell(selectedRackTileId, cellId);
@@ -361,6 +365,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		() => ({
 			puzzle,
 			progress,
+			isClickPlacementEnabled: ENABLE_CLICK_PLACEMENT,
 			selectedRackTileId,
 			placementValidation,
 			submissionFeedback,
@@ -382,6 +387,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			onSubmitCurrentAttempt,
 			placementValidation,
 			progress,
+			ENABLE_CLICK_PLACEMENT,
 			puzzle,
 			selectedRackTileId,
 			submissionFeedback,
