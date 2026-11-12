@@ -1,0 +1,14 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="160" height="160" fill="#171213"/>
+<use xlink:href="#stroke0_121_3448" fill="#FFDBC2"/>
+<use xlink:href="#stroke0_121_3448" fill="url(#paint0_linear_121_3448)"/>
+<defs>
+<linearGradient id="paint0_linear_121_3448" x1="112.593" y1="70.0708" x2="53.4233" y2="117.115" gradientUnits="userSpaceOnUse">
+<stop stop-color="#F592A5"/>
+<stop offset="0.168269" stop-color="#F4ACB7"/>
+<stop offset="0.551959" stop-color="#4CC9F0" stop-opacity="0.6"/>
+<stop offset="0.836538" stop-color="#C5FCCA"/>
+</linearGradient>
+<path id="stroke0_121_3448" d="M55.0224 116.659C45.8168 109.326 64.633 88.0963 64.633 88.0963C64.633 88.0963 38.5828 83.0669 41.4597 72.5576C44.3862 61.8668 69.8425 72.5576 69.8425 72.5576C69.8425 72.5576 67.3915 41.9958 79.9921 41.9293C92.6149 41.8627 90.3213 72.5576 90.3213 72.5576C90.3213 72.5576 115.506 61.9653 118.524 72.5576C121.511 83.0364 95.3511 88.0963 95.3511 88.0963C95.3511 88.0963 114.298 109.229 105.141 116.659C95.7213 124.302 79.9921 98.4255 79.9921 98.4255C79.9921 98.4255 64.4668 124.182 55.0224 116.659Z"/>
+</defs>
+</svg>
