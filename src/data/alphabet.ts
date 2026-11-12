@@ -1,4 +1,4 @@
-export const alphabet = {
+export const alphabet: Record<string, number> = {
 	a: 1,
 	b: 4,
 	c: 3,

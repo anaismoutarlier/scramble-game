@@ -13,7 +13,7 @@ export function CurrentStreakCard({
 		<div
 			className={cn(
 				"bg-primary flex flex-col text-dark font-sans justify-center items-center overflow-hidden text-center",
-				size === "compact" ? "px-4 py-1.5 rounded-[30px]" : "px-4 lg:px-6 py-2 lg:py-3 rounded-[30px] lg:gap-1",
+				size === "compact" ? "px-4 py-1.5 rounded-[30px]" : "px-4 lg:px-6 py-2 rounded-[30px]",
 				className,
 			)}
 		>

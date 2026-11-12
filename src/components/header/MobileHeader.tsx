@@ -30,7 +30,11 @@ export function MobileHeader({
 	}, []);
 
 	return (
-		<header className={"overflow-hidden md:hidden flex flex-col items-center w-full relative z-40 h-[100px] justify-end"}>
+		<header
+			className={
+				"overflow-hidden md:hidden fixed top-0 inset-x-0 z-40 flex flex-col items-center w-full h-[100px] justify-end bg-dark"
+			}
+		>
 			<div className={"w-full h-full self-stretch py-4 flex justify-between items-center gap-3 px-4 sm:px-8"}>
 				<div className="inline-flex flex-col gap-1 min-w-0">
 					<Wordmark size="compact" />

@@ -58,3 +58,19 @@
 
 	--color-tile-letter-surface: var(--tile-letter-surface);
 }
+
+body {
+	font-family: var(--font-sans), sans-serif;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+	display: none;
+}
+
+html,
+body {
+	overflow: auto;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
