@@ -1,18 +1,17 @@
 import { Button } from "../button";
-import type { GameProgress, PuzzleDefinition } from "@/hooks/types";
 import { cn } from "@/lib/cn";
+import { useGameContext } from "@/context/GameContext";
 
 const MAX_ATTEMPTS = 5;
 
 type AttemptsPanelProps = {
-	puzzle: PuzzleDefinition;
-	progress: GameProgress;
 	onGiveUp?: () => void;
 	isBusy?: boolean;
 	className?: string;
 };
 
-export default function AttemptsPanel({ puzzle, progress, onGiveUp, isBusy = false, className }: AttemptsPanelProps) {
+export default function AttemptsPanel({ onGiveUp, isBusy = false, className }: AttemptsPanelProps) {
+	const { puzzle, progress } = useGameContext();
 	const attemptsRemaining = Math.max(0, MAX_ATTEMPTS - progress.attemptsUsed);
 	const attemptSlots = Array.from({ length: MAX_ATTEMPTS }, (_, index) => {
 		const attemptNumber = index + 1;

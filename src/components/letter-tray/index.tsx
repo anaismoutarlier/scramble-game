@@ -1,8 +1,15 @@
+import { useDroppable } from "@dnd-kit/react";
 import { LetterTile } from "./LetterTile";
-import type { OngoingAttempt, RackTiles } from "@/hooks/types";
+import { gameDndIds, useGameContext } from "@/context/GameContext";
+import { cn } from "@/lib/cn";
 
-export function LetterTray({ rackTiles, currentAttempt }: { rackTiles: RackTiles; currentAttempt?: OngoingAttempt }) {
-	const inUseRackTileIds = new Set(currentAttempt?.placedTiles.map(tile => tile.rackTileId) ?? []);
+export function LetterTray() {
+	const { puzzle, selectedRackTileId, isRackTileInUse, onRackTileClick } = useGameContext();
+	const { ref, isDropTarget } = useDroppable({
+		id: gameDndIds.trayDropId,
+		accept: gameDndIds.rackTileType,
+		data: { dropType: "tray" },
+	});
 
 	return (
 		<section className="w-full max-w-full rounded-2xl pb-5 flex flex-col items-center justify-center gap-1 sm:gap-3">
@@ -13,12 +20,27 @@ export function LetterTray({ rackTiles, currentAttempt }: { rackTiles: RackTiles
 			<div className="w-full h-px bg-primary" />
 
 			<p className="w-full text-light pb-4 text-[10px] sm:text-xs leading-snug font-normal text-center">
-				Drag and drop tiles to fill the board. Each word must include the center tile ★ and use only your 7 letters.
+				Drag and drop tiles to fill the board, or click a tile and then click a board square to place it.
 			</p>
 
-			<div className="w-full flex flex-wrap items-start justify-center gap-1">
-				{rackTiles.map(rackTile => (
-					<LetterTile key={rackTile.id} letter={rackTile} isInUse={inUseRackTileIds.has(rackTile.id)} />
+			<div
+				ref={ref}
+				className={cn(
+					"w-full flex flex-wrap items-start justify-center gap-1 rounded-lg transition-colors",
+					isDropTarget && "bg-primary/10",
+				)}
+			>
+				{puzzle.rackTiles.map(rackTile => (
+					<LetterTile
+						key={rackTile.id}
+						letter={rackTile}
+						isInUse={isRackTileInUse(rackTile.id)}
+						isSelected={selectedRackTileId === rackTile.id}
+						onSelect={tileId => {
+							if (isRackTileInUse(tileId)) return;
+							onRackTileClick(tileId);
+						}}
+					/>
 				))}
 			</div>
 		</section>

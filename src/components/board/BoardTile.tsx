@@ -34,6 +34,8 @@ export function BoardTile({
 	hasRightNeighbor,
 	hasTopNeighbor,
 	hasBottomNeighbor,
+	onClick,
+	isInteractive = false,
 }: BoardCell & {
 	colStart?: number;
 	placedLetter?: string;
@@ -41,6 +43,8 @@ export function BoardTile({
 	hasRightNeighbor?: boolean;
 	hasTopNeighbor?: boolean;
 	hasBottomNeighbor?: boolean;
+	onClick?: () => void;
+	isInteractive?: boolean;
 }) {
 	const textColor = isCenter ? textColors.center : bonus ? textColors[bonus] : "";
 	const bgColor = isCenter ? bgColors.center : bonus ? bgColors[bonus] : "bg-light/60";
@@ -62,8 +66,19 @@ export function BoardTile({
 
 	return (
 		<div
+			role={isInteractive ? "button" : undefined}
+			tabIndex={isInteractive ? 0 : undefined}
+			onClick={onClick}
+			onKeyDown={event => {
+				if (!isInteractive || !onClick) return;
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					onClick();
+				}
+			}}
 			className={cn(
 				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center max-[400px]:p-[1.5px] p-[3px]",
+				isInteractive && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/70",
 				connectedRadiusClass,
 				placedLetter && !isIsolatedPlacement ? "bg-tile-letter-surface" : "",
 			)}

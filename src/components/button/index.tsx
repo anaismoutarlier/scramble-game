@@ -13,10 +13,11 @@ export function Button({
 	const isOutlined = variant === "outlined";
 	let bgColor =
 		theme === "dark"
-			? "bg-dark hover:bg-[color-mix(in_oklab,var(--dark)_90%,var(--light))]"
-			: "bg-primary hover:bg-[color-mix(in_oklab,var(--primary)_65%,var(--light))]";
+			? "disabled:bg-disabled-surface bg-dark hover:bg-[color-mix(in_oklab,var(--dark)_90%,var(--light))]"
+			: "disabled:bg-disabled-surface bg-primary hover:bg-[color-mix(in_oklab,var(--primary)_65%,var(--light))]";
 	let textColor = theme === "dark" ? "text-light" : "text-dark";
-	const borderColor = theme === "dark" ? "border-dark" : "border-primary";
+	const borderColor =
+		theme === "dark" ? "disabled:border-disabled-surface border-dark" : "disabled:border-disabled-surface border-primary";
 	if (isOutlined) {
 		bgColor = theme === "dark" ? "bg-transparent hover:bg-dark" : "bg-transparent hover:bg-primary";
 		textColor = theme === "dark" ? "hover:text-light text-dark" : "text-primary hover:text-dark";
@@ -27,7 +28,7 @@ export function Button({
 		<button
 			{...props}
 			className={cn(
-				"group/button text-dark cursor-pointer inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-2 border",
+				"group/button disabled:cursor-auto text-dark cursor-pointer inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-2 border",
 				bgColor,
 				textColor,
 				borderColor,

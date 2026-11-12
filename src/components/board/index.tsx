@@ -1,23 +1,76 @@
-import type { BoardTemplate, OngoingAttempt } from "@/hooks/types";
+import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { BoardTile } from "./BoardTile";
 import { Button } from "../button";
+import { gameDndIds, useGameContext } from "@/context/GameContext";
+import { cn } from "@/lib/cn";
 
-export const SubmitTray = () => {
+const SubmitTray = () => {
+	const { progress, placementValidation, onSubmitCurrentAttempt, submissionFeedback } = useGameContext();
+
 	return (
-		<div className="size- inline-flex flex-col px-4 justify-start items-center gap-3 sm:gap-5">
+		<div className="inline-flex flex-col px-4 justify-start items-center gap-3 sm:gap-5">
 			<div className="inline-flex justify-center items-center gap-3">
 				<div className="text-light text-xs sm:text-sm md:text-base font-bold font-sans">Current Score</div>
 				<div className="w-px h-5 sm:h-7 md:h-9 bg-primary" />
 				<div className="px-4 py-2 bg-primary rounded-3xl flex justify-start items-start gap-1 text-center text-dark text-xs sm:text-sm md:text-base leading-tight font-bold font-sans">
-					6 points
+					{progress.currentAttempt?.score.total ?? 0} points
 				</div>
 			</div>
-			<Button className="w-full sm:max-w-sm">Submit</Button>
+			{submissionFeedback.type !== "none" && (
+				<div
+					className={cn(
+						"w-full text-center text-xs sm:text-sm font-semibold",
+						submissionFeedback.type === "valid" ? "text-primary" : "text-tile-tw-text",
+					)}
+				>
+					{submissionFeedback.message}
+				</div>
+			)}
+			<Button className="w-full sm:max-w-sm" disabled={!placementValidation.isSubmittable} onClick={onSubmitCurrentAttempt}>
+				Submit
+			</Button>
 		</div>
 	);
 };
 
-export function Board({ board, currentAttempt }: { board: BoardTemplate; currentAttempt?: OngoingAttempt }) {
+type PlacedTileDraggableProps = {
+	rackTileId: string;
+	children: React.ReactNode;
+};
+
+const PlacedTileDraggable = ({ rackTileId, children }: PlacedTileDraggableProps) => {
+	const { ref } = useDraggable({
+		id: `${gameDndIds.tileDragPrefix}${rackTileId}`,
+		type: gameDndIds.rackTileType,
+		data: { rackTileId, source: "board" },
+	});
+	return <div ref={ref}>{children}</div>;
+};
+
+type BoardCellSlotProps = {
+	cellId: string;
+	colStart: number;
+	children: React.ReactNode;
+};
+
+const BoardCellSlot = ({ cellId, colStart, children }: BoardCellSlotProps) => {
+	const { ref } = useDroppable({
+		id: `${gameDndIds.cellDropPrefix}${cellId}`,
+		accept: gameDndIds.rackTileType,
+		data: { dropType: "cell", cellId },
+	});
+	return (
+		<div ref={ref} style={{ gridColumnStart: colStart }}>
+			{children}
+		</div>
+	);
+};
+
+export function Board() {
+	const { puzzle, progress, getPlacedTileByCellId, onBoardCellClick } = useGameContext();
+	const board = puzzle.board;
+	const currentAttempt = progress.currentAttempt;
+
 	const rowIndices = [
 		...new Set(
 			board.verticalAxis.map(cellId => board.cellsById[cellId]?.coordinate.row).filter((row): row is number => row !== undefined),
@@ -54,21 +107,34 @@ export function Board({ board, currentAttempt }: { board: BoardTemplate; current
 						<div className="grid grid-cols-[repeat(7,var(--tile-size))]" key={`r${row}`}>
 							{rowCells.map(cell => {
 								const colStart = colIndices.indexOf(cell.coordinate.column) + 1;
+								const placedLetter = placedLettersByCellId.get(cell.id);
+								const placedTile = getPlacedTileByCellId(cell.id);
 								const hasLeftNeighbor = Boolean(getPlacedLetterAt(cell.coordinate.row, cell.coordinate.column - 1));
 								const hasRightNeighbor = Boolean(getPlacedLetterAt(cell.coordinate.row, cell.coordinate.column + 1));
 								const hasTopNeighbor = Boolean(getPlacedLetterAt(cell.coordinate.row - 1, cell.coordinate.column));
 								const hasBottomNeighbor = Boolean(getPlacedLetterAt(cell.coordinate.row + 1, cell.coordinate.column));
-								return (
+
+								const tileMarkup = (
 									<BoardTile
-										key={cell.id}
-										colStart={colStart}
-										placedLetter={placedLettersByCellId.get(cell.id)}
+										{...cell}
+										placedLetter={placedLetter}
 										hasLeftNeighbor={hasLeftNeighbor}
 										hasRightNeighbor={hasRightNeighbor}
 										hasTopNeighbor={hasTopNeighbor}
 										hasBottomNeighbor={hasBottomNeighbor}
-										{...cell}
+										onClick={() => onBoardCellClick(cell.id)}
+										isInteractive
 									/>
+								);
+
+								return (
+									<BoardCellSlot key={cell.id} cellId={cell.id} colStart={colStart}>
+										{placedTile ? (
+											<PlacedTileDraggable rackTileId={placedTile.rackTileId}>{tileMarkup}</PlacedTileDraggable>
+										) : (
+											tileMarkup
+										)}
+									</BoardCellSlot>
 								);
 							})}
 						</div>

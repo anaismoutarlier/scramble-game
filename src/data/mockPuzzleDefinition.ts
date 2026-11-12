@@ -1,4 +1,4 @@
-import type { PuzzleDefinition } from "@/hooks/useGameState";
+import type { PuzzleDefinition } from "@/hooks/types";
 
 export const mockPuzzleDefinition: PuzzleDefinition = {
 	id: "2026-11-11",

@@ -9,6 +9,7 @@
 
 	--accent: #684756;
 	--primary: #dccdf4;
+	--disabled-surface: #ced4da;
 
 	/* TILES */
 	--tile-center-surface: #ffdbc2;
@@ -43,6 +44,7 @@
 
 	--color-accent: var(--accent);
 	--color-primary: var(--primary);
+	--color-disabled-surface: var(--disabled-surface);
 
 	--color-tile-center-surface: var(--tile-center-surface);
 
