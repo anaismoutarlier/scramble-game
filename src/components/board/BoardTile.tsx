@@ -1,3 +1,5 @@
+"use client";
+
 import type { BoardCell } from "@/hooks/types";
 import { cn } from "@/lib/cn";
 import { alphabet } from "@/data/alphabet";
@@ -77,7 +79,7 @@ export function BoardTile({
 				}
 			}}
 			className={cn(
-				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center max-[400px]:p-[1.5px] p-[3px]",
+				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center max-[400px]:p-[1.5px] p-[3px] select-none",
 				isInteractive && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/70",
 				connectedRadiusClass,
 				placedLetter && !isIsolatedPlacement ? "bg-tile-letter-surface" : "",
@@ -86,7 +88,7 @@ export function BoardTile({
 		>
 			<div
 				className={cn(
-					"w-full h-full relative rounded-sm flex justify-center items-center uppercase",
+					"w-full h-full relative rounded-sm flex justify-center items-center uppercase pointer-events-none",
 					placedLetter ? `max-[400px]:outline-[0.5px] outline-1 md:outline-2 ${outlineColor} bg-tile-letter-surface` : bgColor,
 					placedLetter ? "text-dark" : textColor,
 				)}

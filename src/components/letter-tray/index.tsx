@@ -1,10 +1,12 @@
+"use client";
+
 import { useDroppable } from "@dnd-kit/react";
 import { LetterTile } from "./LetterTile";
 import { gameDndIds, useGameContext } from "@/context/GameContext";
 import { cn } from "@/lib/cn";
 
 export function LetterTray() {
-	const { puzzle, selectedRackTileId, isRackTileInUse, onRackTileClick } = useGameContext();
+	const { puzzle, selectedRackTileId, isRackTileInUse, onRackTileClick, isClickPlacementEnabled } = useGameContext();
 	const { ref, isDropTarget } = useDroppable({
 		id: gameDndIds.trayDropId,
 		accept: gameDndIds.rackTileType,
@@ -20,7 +22,7 @@ export function LetterTray() {
 			<div className="w-full h-px bg-primary" />
 
 			<p className="w-full text-light pb-4 text-[10px] sm:text-xs leading-snug font-normal text-center">
-				Drag and drop tiles to fill the board, or click a tile and then click a board square to place it.
+				Drag and drop tiles to fill the board.
 			</p>
 
 			<div
@@ -35,11 +37,15 @@ export function LetterTray() {
 						key={rackTile.id}
 						letter={rackTile}
 						isInUse={isRackTileInUse(rackTile.id)}
-						isSelected={selectedRackTileId === rackTile.id}
-						onSelect={tileId => {
-							if (isRackTileInUse(tileId)) return;
-							onRackTileClick(tileId);
-						}}
+						isSelected={isClickPlacementEnabled && selectedRackTileId === rackTile.id}
+						onSelect={
+							isClickPlacementEnabled
+								? tileId => {
+										if (isRackTileInUse(tileId)) return;
+										onRackTileClick(tileId);
+									}
+								: undefined
+						}
 					/>
 				))}
 			</div>

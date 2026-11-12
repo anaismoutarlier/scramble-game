@@ -1,30 +1,39 @@
-import { DragDropProvider } from "@dnd-kit/react";
+"use client";
+
+import { DragDropProvider, DragOverlay } from "@dnd-kit/react";
 import { Board } from "../board";
 import { LetterTray } from "../letter-tray";
 import AttemptsPanel from "../attempts-panel";
 import { useGameContext } from "@/context/GameContext";
 
 export const GameLayout = () => {
-	const { onDragStart, onDragEnd } = useGameContext();
+	const { onDragStart, onDragEnd, activeDragLetter } = useGameContext();
 
 	return (
 		<DragDropProvider onDragStart={onDragStart} onDragEnd={onDragEnd}>
 			<main className="w-full flex justify-center min-h-[calc(100vh-100px)] items-start py-6 sm:py-12 px-6 lg:px-10">
-				<div className="w-full gap-8 xl:gap-12 hidden md:flex justify-center">
-					<div className="w-full max-w-100 flex flex-col">
+				<div className="w-full flex flex-col items-center md:items-start md:flex-row md:justify-center gap-8 xl:gap-12">
+					<div className="w-full max-w-100 flex flex-col order-1">
 						<LetterTray />
-						<AttemptsPanel />
+						<div className="hidden md:block">
+							<AttemptsPanel />
+						</div>
 					</div>
-					<Board />
-				</div>
-				<div className="w-full flex max-w-lg flex-col items-center md:hidden gap-8">
-					<div className="flex flex-col w-full items-center gap-2">
-						<LetterTray />
+					<div className="order-2">
 						<Board />
 					</div>
-					<AttemptsPanel />
+					<div className="w-full max-w-lg order-3 md:hidden">
+						<AttemptsPanel />
+					</div>
 				</div>
 			</main>
+			<DragOverlay>
+				{activeDragLetter ? (
+					<div className="size-10 md:size-12 bg-tile-letter-surface rounded-md sm:rounded-lg border-b-[1.5px] sm:border-b-[3px] border-neutral-900/60 inline-flex flex-col justify-center items-center font-sans text-dark select-none shadow-md">
+						<div className="text-xs sm:text-base md:text-xl font-bold leading-tight uppercase">{activeDragLetter}</div>
+					</div>
+				) : null}
+			</DragOverlay>
 		</DragDropProvider>
 	);
 };

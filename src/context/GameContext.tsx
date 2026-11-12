@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { DragEndEvent } from "@dnd-kit/react";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { alphabet } from "@/data/alphabet";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 import { mockPuzzleValidWordSet } from "@/data/mockPuzzleValidWords";
@@ -28,11 +28,12 @@ type GameContextValue = {
 	selectedRackTileId: RackTileId | null;
 	placementValidation: PlacementValidation;
 	submissionFeedback: SubmissionFeedback;
+	activeDragLetter: string | null;
 	isRackTileInUse: (rackTileId: RackTileId) => boolean;
 	getPlacedTileByCellId: (cellId: CellId) => OngoingAttemptTile | undefined;
 	onRackTileClick: (rackTileId: RackTileId) => void;
 	onBoardCellClick: (cellId: CellId) => void;
-	onDragStart: () => void;
+	onDragStart: (event: DragStartEvent) => void;
 	onDragEnd: (event: DragEndEvent) => void;
 	onSubmitCurrentAttempt: () => void;
 };
@@ -134,9 +135,7 @@ const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardT
 		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
 	}
 
-	const orderedByAxis = [...tilesWithCoordinates].sort((a, b) =>
-		axis === "horizontal" ? a.column - b.column : a.row - b.row,
-	);
+	const orderedByAxis = [...tilesWithCoordinates].sort((a, b) => (axis === "horizontal" ? a.column - b.column : a.row - b.row));
 
 	const axisCoordinates = orderedByAxis.map(entry => (axis === "horizontal" ? entry.column : entry.row));
 	const minCoordinate = Math.min(...axisCoordinates);
@@ -148,7 +147,10 @@ const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardT
 	}
 
 	const orderedTiles = orderedByAxis.map(entry => entry.tile);
-	const candidateWord = orderedTiles.map(tile => tile.letter).join("").toLowerCase();
+	const candidateWord = orderedTiles
+		.map(tile => tile.letter)
+		.join("")
+		.toLowerCase();
 
 	return {
 		isSubmittable: true,
@@ -201,6 +203,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [placedTiles, setPlacedTiles] = useState<OngoingAttemptTile[]>([]);
 	const [selectedRackTileId, setSelectedRackTileId] = useState<RackTileId | null>(null);
 	const [submissionFeedback, setSubmissionFeedback] = useState<SubmissionFeedback>({ type: "none", message: "" });
+	const [activeDragLetter, setActiveDragLetter] = useState<string | null>(null);
 	const suppressClickRef = useRef(false);
 
 	useEffect(() => {
@@ -229,7 +232,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	const getPlacedTileByCellId = useCallback((cellId: CellId) => placedTiles.find(tile => tile.cellId === cellId), [placedTiles]);
-	const isRackTileInUse = useCallback((rackTileId: RackTileId) => placedTiles.some(tile => tile.rackTileId === rackTileId), [placedTiles]);
+	const isRackTileInUse = useCallback(
+		(rackTileId: RackTileId) => placedTiles.some(tile => tile.rackTileId === rackTileId),
+		[placedTiles],
+	);
 
 	const onRackTileClick = useCallback((rackTileId: RackTileId) => {
 		if (!ENABLE_CLICK_PLACEMENT) return;
@@ -310,16 +316,39 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		setSubmissionFeedback({ type: "valid", message: `Accepted "${candidateWord.toUpperCase()}".` });
 	}, [currentAttemptScore, placementValidation, savedProgress.attemptsUsed]);
 
-	const onDragStart = useCallback(() => {
-	suppressClickRef.current = true;
-	}, []);
+	const onDragStart = useCallback(
+		(event: DragStartEvent) => {
+			console.log("start", event);
+			const sourceRackTileId = parseRackTileId(event.operation.source?.id);
+			if (sourceRackTileId) {
+				const placedTile = placedTiles.find(tile => tile.rackTileId === sourceRackTileId);
+				const letterFromRack = puzzle.rackTiles.find(tile => tile.id === sourceRackTileId)?.letter;
+				setActiveDragLetter(placedTile?.letter ?? letterFromRack ?? null);
+			}
+
+			suppressClickRef.current = true;
+		},
+		[placedTiles, puzzle.rackTiles],
+	);
 
 	const onDragEnd = useCallback(
-	(event: DragEndEvent) => {
-		if (event.canceled) return;
+		(event: DragEndEvent) => {
+			console.log("end", event);
+			setActiveDragLetter(null);
+			if (event.canceled) {
+				setTimeout(() => {
+					suppressClickRef.current = false;
+				}, 0);
+				return;
+			}
 
 			const sourceRackTileId = parseRackTileId(event.operation.source?.id);
-			if (!sourceRackTileId) return;
+			if (!sourceRackTileId) {
+				setTimeout(() => {
+					suppressClickRef.current = false;
+				}, 0);
+				return;
+			}
 			const sourceOrigin = event.operation.source?.data?.source;
 
 			const targetId = event.operation.target?.id;
@@ -328,12 +357,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			if (targetCellId) {
 				placeTileOnCell(sourceRackTileId, targetCellId);
 				setSelectedRackTileId(null);
+				setTimeout(() => {
+					suppressClickRef.current = false;
+				}, 0);
 				return;
 			}
 
 			if (targetId === TRAY_DROP_ID) {
 				removePlacedTile(sourceRackTileId);
 				setSelectedRackTileId(null);
+				setTimeout(() => {
+					suppressClickRef.current = false;
+				}, 0);
 				return;
 			}
 
@@ -369,6 +404,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			selectedRackTileId,
 			placementValidation,
 			submissionFeedback,
+			activeDragLetter,
 			isRackTileInUse,
 			getPlacedTileByCellId,
 			onRackTileClick,
@@ -378,6 +414,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			onSubmitCurrentAttempt,
 		}),
 		[
+			activeDragLetter,
 			getPlacedTileByCellId,
 			isRackTileInUse,
 			onBoardCellClick,
@@ -387,7 +424,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			onSubmitCurrentAttempt,
 			placementValidation,
 			progress,
-			ENABLE_CLICK_PLACEMENT,
 			puzzle,
 			selectedRackTileId,
 			submissionFeedback,

@@ -1,3 +1,5 @@
+"use client";
+
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { BoardTile } from "./BoardTile";
 import { Button } from "../button";
@@ -39,12 +41,22 @@ type PlacedTileDraggableProps = {
 };
 
 const PlacedTileDraggable = ({ rackTileId, children }: PlacedTileDraggableProps) => {
-	const { ref } = useDraggable({
+	const { ref, handleRef, isDragging } = useDraggable({
 		id: `${gameDndIds.tileDragPrefix}${rackTileId}`,
 		type: gameDndIds.rackTileType,
 		data: { rackTileId, source: "board" },
 	});
-	return <div ref={ref}>{children}</div>;
+	return (
+		<div
+			ref={element => {
+				ref(element);
+				handleRef(element);
+			}}
+			className={cn("select-none touch-none", isDragging && "opacity-80")}
+		>
+			{children}
+		</div>
+	);
 };
 
 type BoardCellSlotProps = {
@@ -67,7 +79,7 @@ const BoardCellSlot = ({ cellId, colStart, children }: BoardCellSlotProps) => {
 };
 
 export function Board() {
-	const { puzzle, progress, getPlacedTileByCellId, onBoardCellClick } = useGameContext();
+	const { puzzle, progress, getPlacedTileByCellId, onBoardCellClick, isClickPlacementEnabled } = useGameContext();
 	const board = puzzle.board;
 	const currentAttempt = progress.currentAttempt;
 
@@ -122,8 +134,8 @@ export function Board() {
 										hasRightNeighbor={hasRightNeighbor}
 										hasTopNeighbor={hasTopNeighbor}
 										hasBottomNeighbor={hasBottomNeighbor}
-										onClick={() => onBoardCellClick(cell.id)}
-										isInteractive
+										onClick={isClickPlacementEnabled ? () => onBoardCellClick(cell.id) : undefined}
+										isInteractive={isClickPlacementEnabled}
 									/>
 								);
 

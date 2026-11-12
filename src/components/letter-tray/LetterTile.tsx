@@ -1,3 +1,5 @@
+"use client";
+
 import { useDraggable } from "@dnd-kit/react";
 import { alphabet } from "@/data/alphabet";
 import { RackTile } from "@/hooks/types";
@@ -13,9 +15,9 @@ export function LetterTile({
 	letter: RackTile;
 	isInUse: boolean;
 	isSelected: boolean;
-	onSelect: (rackTileId: string) => void;
+	onSelect?: (rackTileId: string) => void;
 }) {
-	const { ref } = useDraggable({
+	const { ref, handleRef } = useDraggable({
 		id: `${gameDndIds.tileDragPrefix}${letter.id}`,
 		type: gameDndIds.rackTileType,
 		disabled: isInUse,
@@ -24,25 +26,29 @@ export function LetterTile({
 	const letterValue = alphabet[letter.letter];
 	return (
 		<div
-			ref={ref}
-			role="button"
-			tabIndex={0}
-			onClick={() => onSelect(letter.id)}
+			ref={element => {
+				ref(element);
+				handleRef(element);
+			}}
+			role={onSelect ? "button" : undefined}
+			tabIndex={onSelect ? 0 : undefined}
+			onClick={onSelect ? () => onSelect(letter.id) : undefined}
 			onKeyDown={event => {
+				if (!onSelect) return;
 				if (event.key === "Enter" || event.key === " ") {
 					event.preventDefault();
 					onSelect(letter.id);
 				}
 			}}
 			className={cn(
-				"size-10 md:size-12 bg-tile-letter-surface rounded-md sm:rounded-lg border-b-[1.5px] sm:border-b-[3px] border-neutral-900/60 inline-flex flex-col justify-center items-center font-sans text-dark focus:outline-none focus:ring-2 focus:ring-primary/70",
+				"size-10 md:size-12 bg-tile-letter-surface rounded-md sm:rounded-lg border-b-[1.5px] sm:border-b-[3px] border-neutral-900/60 inline-flex flex-col justify-center items-center font-sans text-dark focus:outline-none focus:ring-2 focus:ring-primary/70 select-none touch-none",
 				isInUse ? "opacity-50 cursor-not-allowed" : "opacity-100 cursor-grab active:cursor-grabbing",
 				isSelected && "ring-2 ring-primary",
 			)}
-			aria-pressed={isSelected}
+			aria-pressed={onSelect ? isSelected : undefined}
 		>
-			<div className="text-xs sm:text-base md:text-xl font-bold leading-tight uppercase">{letter.letter}</div>
-			<div className="text-[7px] sm:text-[9px] leading-none">{letterValue}</div>
+			<div className="text-xs sm:text-base md:text-xl font-bold leading-tight uppercase pointer-events-none">{letter.letter}</div>
+			<div className="text-[7px] sm:text-[9px] leading-none pointer-events-none">{letterValue}</div>
 		</div>
 	);
 }
