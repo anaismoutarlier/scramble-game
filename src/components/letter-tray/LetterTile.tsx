@@ -1,8 +1,9 @@
 import { alphabet } from "@/data/alphabet";
+import { RackTile } from "@/hooks/types";
 import { cn } from "@/lib/cn";
 
-export default function LetterTile({ letter, isInUse }: { letter: string[1]; isInUse: boolean }) {
-	const letterValue = alphabet[letter];
+export function LetterTile({ letter, isInUse }: { letter: RackTile; isInUse: boolean }) {
+	const letterValue = alphabet[letter.letter];
 	return (
 		<div
 			className={cn(
@@ -10,7 +11,7 @@ export default function LetterTile({ letter, isInUse }: { letter: string[1]; isI
 				isInUse ? "opacity-50" : "opacity-100",
 			)}
 		>
-			<div className="text-xl font-bold">{letter}</div>
+			<div className="text-xl font-bold uppercase">{letter.letter}</div>
 			<div className="text-[9px]">{letterValue}</div>
 		</div>
 	);

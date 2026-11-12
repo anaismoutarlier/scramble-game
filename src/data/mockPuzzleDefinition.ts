@@ -3,7 +3,15 @@ import type { PuzzleDefinition } from "@/hooks/useGameState";
 export const mockPuzzleDefinition: PuzzleDefinition = {
 	id: "2026-11-11",
 	date: "2026-11-11",
-	rackLetters: ["z", "y", "g", "o", "t", "e", "s"],
+	rackTiles: [
+		{ id: "rack-0", letter: "z" },
+		{ id: "rack-1", letter: "y" },
+		{ id: "rack-2", letter: "g" },
+		{ id: "rack-3", letter: "o" },
+		{ id: "rack-4", letter: "t" },
+		{ id: "rack-5", letter: "e" },
+		{ id: "rack-6", letter: "s" },
+	],
 	board: {
 		centerCellId: "r3c3",
 		horizontalAxis: ["r3c0", "r3c1", "r3c2", "r3c3", "r3c4", "r3c5", "r3c6"],

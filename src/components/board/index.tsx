@@ -34,7 +34,7 @@ export function Board({ board, currentAttempt }: { board: BoardTemplate; current
 					.sort((a, b) => a.coordinate.column - b.coordinate.column);
 
 				return (
-					<div className="grid grid-cols-[repeat(7,63px)]" key={`r${row}`}>
+					<div className="grid grid-cols-[repeat(7,var(--tile-size))]" key={`r${row}`}>
 						{rowCells.map(cell => {
 							const colStart = colIndices.indexOf(cell.coordinate.column) + 1;
 							const hasLeftNeighbor = Boolean(getPlacedLetterAt(cell.coordinate.row, cell.coordinate.column - 1));

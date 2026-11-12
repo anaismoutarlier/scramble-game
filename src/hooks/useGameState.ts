@@ -8,21 +8,18 @@ export const useGameState = () => {
 	const [currentAttempt] = useState<OngoingAttempt>({
 		attemptNumber: 1,
 		placedTiles: [
-			{ cellId: "r2c3", letter: "e" },
-			{ cellId: "r3c3", letter: "g" },
-			{ cellId: "r3c2", letter: "o" },
+			{ rackTileId: "rack-5", cellId: "r2c3", letter: "e" },
+			{ rackTileId: "rack-2", cellId: "r3c3", letter: "g" },
+			{ rackTileId: "rack-3", cellId: "r3c2", letter: "o" },
 		],
 		score: {
 			baseLetterScore: 4,
 			letterMultiplierHits: [{ cellId: "r3c2", bonus: "dl", multiplier: 2 }],
-			wordMultiplierHits: [
-				{ cellId: "r2c3", bonus: "dw", multiplier: 2 },
-				{ cellId: "r5c3", bonus: "tw", multiplier: 3 },
-			],
-			wordMultiplierTotal: 6,
+			wordMultiplierHits: [{ cellId: "r2c3", bonus: "dw", multiplier: 2 }],
+			wordMultiplierTotal: 2,
 			slamBonusApplied: false,
 			slamBonusPoints: 0,
-			total: 36,
+			total: 10,
 		},
 	});
 	return { puzzle, currentAttempt };

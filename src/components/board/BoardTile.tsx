@@ -63,7 +63,7 @@ export function BoardTile({
 	return (
 		<div
 			className={cn(
-				"h-[63px] w-[63px] flex justify-center items-center p-[3px]",
+				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center p-[3px]",
 				connectedRadiusClass,
 				placedLetter && !isIsolatedPlacement ? "bg-tile-letter-surface" : "",
 			)}
@@ -71,8 +71,8 @@ export function BoardTile({
 		>
 			<div
 				className={cn(
-					"w-full h-full relative outline-2 rounded-sm flex justify-center items-center uppercase",
-					placedLetter ? `${outlineColor} bg-tile-letter-surface` : bgColor,
+					"w-full h-full relative rounded-sm flex justify-center items-center uppercase",
+					placedLetter ? `outline-2 ${outlineColor} bg-tile-letter-surface` : bgColor,
 					placedLetter ? "text-dark" : textColor,
 				)}
 			>

@@ -14,8 +14,14 @@ export type ValidationErrorCode =
 
 export type CellId = string;
 export type PuzzleId = string;
+export type RackTileId = string;
 
-export type RackLetters = readonly [string, string, string, string, string, string, string];
+export interface RackTile {
+	id: RackTileId;
+	letter: string;
+}
+
+export type RackTiles = readonly [RackTile, RackTile, RackTile, RackTile, RackTile, RackTile, RackTile];
 
 export interface CellCoordinate {
 	row: number;
@@ -47,7 +53,7 @@ export interface PuzzleGenerationMetadata {
 export interface PuzzleDefinition {
 	id: PuzzleId;
 	date: string;
-	rackLetters: RackLetters;
+	rackTiles: RackTiles;
 	board: BoardTemplate;
 	generation: PuzzleGenerationMetadata;
 }
@@ -56,6 +62,7 @@ export interface WordPlacement {
 	direction: Axis;
 	startCellId: CellId;
 	placementCells: CellId[];
+	rackTileIdsInPlacementOrder: RackTileId[];
 }
 
 export interface ScoreBreakdown {
@@ -86,13 +93,14 @@ export interface AttemptRecord {
 	attemptNumber: number;
 	submittedAt?: string;
 	word: string;
-	letters: string[];
+	rackTileIdsUsed: RackTileId[];
 	placement: WordPlacement;
 	score: ScoreBreakdown;
 	validationFailure?: AttemptValidationFailure;
 }
 
 export interface OngoingAttemptTile {
+	rackTileId: RackTileId;
 	cellId: CellId;
 	letter: string;
 }

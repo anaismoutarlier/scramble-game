@@ -26,6 +26,8 @@
 	--tile-dl-text: #084a5e;
 
 	--tile-letter-surface: #f9e8b9;
+
+	--tile-size: 64px;
 }
 
 @theme inline {
