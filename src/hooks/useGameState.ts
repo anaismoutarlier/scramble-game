@@ -1,4 +1,4 @@
-import type { PuzzleDefinition, BoardCell, BoardTemplate, OngoingAttempt } from "./types";
+import type { PuzzleDefinition, BoardCell, BoardTemplate, OngoingAttempt, GameProgress } from "./types";
 import { useState } from "react";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 
@@ -22,5 +22,60 @@ export const useGameState = () => {
 			total: 10,
 		},
 	});
-	return { puzzle, currentAttempt };
+
+	const [progress] = useState<GameProgress>({
+		puzzleId: puzzle.id,
+		status: "in_progress",
+		attemptsUsed: 2,
+		totalScore: 23,
+		currentAttempt,
+		attempts: [
+			{
+				id: "attempt-1",
+				attemptNumber: 1,
+				word: "got",
+				rackTileIdsUsed: ["rack-2", "rack-3", "rack-4"],
+				placement: {
+					direction: "horizontal",
+					startCellId: "r3c2",
+					placementCells: ["r3c2", "r3c3", "r3c4"],
+					rackTileIdsInPlacementOrder: ["rack-2", "rack-3", "rack-4"],
+				},
+				score: {
+					baseLetterScore: 4,
+					letterMultiplierHits: [],
+					wordMultiplierHits: [{ cellId: "r2c3", bonus: "dw", multiplier: 2 }],
+					wordMultiplierTotal: 2,
+					slamBonusApplied: false,
+					slamBonusPoints: 0,
+					total: 8,
+				},
+			},
+			{
+				id: "attempt-2",
+				attemptNumber: 2,
+				word: "toes",
+				rackTileIdsUsed: ["rack-4", "rack-3", "rack-5", "rack-6"],
+				placement: {
+					direction: "vertical",
+					startCellId: "r2c3",
+					placementCells: ["r2c3", "r3c3", "r4c3", "r5c3"],
+					rackTileIdsInPlacementOrder: ["rack-4", "rack-3", "rack-5", "rack-6"],
+				},
+				score: {
+					baseLetterScore: 8,
+					letterMultiplierHits: [],
+					wordMultiplierHits: [],
+					wordMultiplierTotal: 1,
+					slamBonusApplied: false,
+					slamBonusPoints: 0,
+					total: 15,
+				},
+			},
+		],
+		startedAt: "2026-11-11T08:00:00.000Z",
+		updatedAt: "2026-11-11T08:12:00.000Z",
+	});
+
+	return { puzzle, progress };
 };

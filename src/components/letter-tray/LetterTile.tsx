@@ -7,12 +7,12 @@ export function LetterTile({ letter, isInUse }: { letter: RackTile; isInUse: boo
 	return (
 		<div
 			className={cn(
-				"size-12 bg-tile-letter-surface rounded-lg border-b-[3px] border-neutral-900/60 inline-flex flex-col justify-center items-center font-sans text-dark",
+				"size-10 md:size-12 bg-tile-letter-surface rounded-md sm:rounded-lg border-b-[1.5px] sm:border-b-[3px] border-neutral-900/60 inline-flex flex-col justify-center items-center font-sans text-dark",
 				isInUse ? "opacity-50" : "opacity-100",
 			)}
 		>
-			<div className="text-xl font-bold uppercase">{letter.letter}</div>
-			<div className="text-[9px]">{letterValue}</div>
+			<div className="text-xs sm:text-base md:text-xl font-bold leading-tight uppercase">{letter.letter}</div>
+			<div className="text-[7px] sm:text-[9px] leading-none">{letterValue}</div>
 		</div>
 	);
 }

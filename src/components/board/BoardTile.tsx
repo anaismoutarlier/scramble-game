@@ -63,7 +63,7 @@ export function BoardTile({
 	return (
 		<div
 			className={cn(
-				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center p-[3px]",
+				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center max-[400px]:p-[1.5px] p-[3px]",
 				connectedRadiusClass,
 				placedLetter && !isIsolatedPlacement ? "bg-tile-letter-surface" : "",
 			)}
@@ -72,25 +72,31 @@ export function BoardTile({
 			<div
 				className={cn(
 					"w-full h-full relative rounded-sm flex justify-center items-center uppercase",
-					placedLetter ? `outline-2 ${outlineColor} bg-tile-letter-surface` : bgColor,
+					placedLetter ? `max-[400px]:outline-[0.5px] outline-1 md:outline-2 ${outlineColor} bg-tile-letter-surface` : bgColor,
 					placedLetter ? "text-dark" : textColor,
 				)}
 			>
 				{placedLetter && (
 					<>
-						<span className="text-dark absolute top-1 left-1 font-semibold text-[10px]">{tileValue}</span>
-						<span className={cn("uppercase absolute top-1 font-semibold right-1 text-[10px]", textColor)}>{bonus}</span>
+						<span className="text-dark absolute top-0 sm:top-1 left-1 font-semibold text-[6px] sm:text-[10px]">
+							{tileValue}
+						</span>
+						<span
+							className={cn("uppercase absolute top-0 sm:top-1 font-semibold right-1 text-[6px] sm:text-[10px]", textColor)}
+						>
+							{bonus}
+						</span>
 						{isCenter && (
-							<div className="absolute bottom-1 left-0 w-full flex justify-center">
-								<span className="text-[9px]">★</span>
+							<div className="absolute bottom-0 sm:bottom-1 left-0 w-full flex justify-center">
+								<span className="text-[6px] md:text-[9px]">★</span>
 							</div>
 						)}
 					</>
 				)}
 				{placedLetter ? (
-					<span className="font-semibold text-xl">{placedLetter}</span>
+					<span className="font-semibold text-xs sm:text-sm md:text-base lg:text-xl">{placedLetter}</span>
 				) : (
-					<span className="font-oi">{isCenter ? "★" : bonus}</span>
+					<span className="font-oi text-[9px] md:text-xs xl:text-sm">{isCenter ? "★" : bonus}</span>
 				)}
 			</div>
 		</div>

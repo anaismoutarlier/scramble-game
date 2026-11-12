@@ -5,22 +5,31 @@ import { type LucideIcon } from "lucide-react";
 export function Button({
 	children,
 	variant = "filled",
-	theme = "dark",
+	theme = "light",
 	className,
 	icon,
 	...props
 }: ComponentProps<"button"> & { icon?: LucideIcon; variant?: "filled" | "outlined"; theme?: "light" | "dark" }) {
-	const bgColor = theme === "light" ? "bg-dark" : "bg-primary";
-	const textColor = theme === "light" ? "text-dark" : "text-primary";
-	const borderColor = theme === "light" ? "border-dark" : "border-primary";
+	const isOutlined = variant === "outlined";
+	let bgColor =
+		theme === "dark"
+			? "bg-dark hover:bg-[color-mix(in_oklab,var(--dark)_90%,var(--light))]"
+			: "bg-primary hover:bg-[color-mix(in_oklab,var(--primary)_65%,var(--light))]";
+	let textColor = theme === "dark" ? "text-light" : "text-dark";
+	const borderColor = theme === "dark" ? "border-dark" : "border-primary";
+	if (isOutlined) {
+		bgColor = theme === "dark" ? "bg-transparent hover:bg-dark" : "bg-transparent hover:bg-primary";
+		textColor = theme === "dark" ? "hover:text-light text-dark" : "text-primary hover:text-dark";
+	}
 
 	const Icon = icon;
 	return (
 		<button
 			{...props}
 			className={cn(
-				"text-dark cursor-pointer inline-flex gap-2 rounded-[20px] px-5 py-2 border",
-				variant === "filled" ? `${bgColor} text-dark` : textColor,
+				"group/button text-dark cursor-pointer inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-2 border",
+				bgColor,
+				textColor,
 				borderColor,
 				className,
 			)}

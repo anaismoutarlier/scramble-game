@@ -1,7 +1,8 @@
 "use client";
 
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use, Suspense } from "react";
+import { io } from "next/cache";
 
 function getCountdownToNextMidnight() {
 	const now = moment();
@@ -15,7 +16,8 @@ function getCountdownToNextMidnight() {
 	return `${hours}:${minutes}:${seconds}`;
 }
 
-export function Footer() {
+const Countdown = () => {
+	use(io());
 	const [countdown, setCountdown] = useState(() => getCountdownToNextMidnight());
 
 	useEffect(() => {
@@ -28,13 +30,19 @@ export function Footer() {
 		};
 	}, []);
 
+	return <div className="justify-start text-dark text-right text-xs tabular-nums">New puzzle in {countdown}</div>;
+};
+
+export function Footer() {
 	return (
 		<div className="w-full px-3 sm:px-6 py-4 bg-primary flex justify-between items-center gap-2">
 			<div className="flex flex-col sm:flex-row items-start justify-start sm:items-center sm:gap-3">
 				<div className="justify-start text-dark text-base font-normal font-baby-gemoy">SCRAMBLE</div>
 				<div className="text-dark text-xs">© 2026 Anaïs Moutarlier &amp; Kesh Gor</div>
 			</div>
-			<div className="justify-start text-dark text-right text-xs tabular-nums">New puzzle in {countdown}</div>
+			<Suspense>
+				<Countdown />
+			</Suspense>
 		</div>
 	);
 }
