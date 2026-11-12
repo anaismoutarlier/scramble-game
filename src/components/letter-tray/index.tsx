@@ -22,7 +22,7 @@ export function LetterTray() {
 			<div className="w-full h-px bg-primary" />
 
 			<p className="w-full text-light pb-4 text-[10px] sm:text-xs leading-snug font-normal text-center">
-				Drag and drop tiles to fill the board.
+				Drag and drop tiles, or click a tile and then click a board square.
 			</p>
 
 			<div

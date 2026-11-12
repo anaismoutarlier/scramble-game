@@ -46,7 +46,7 @@ const CELL_DROP_PREFIX = "cell:";
 const TRAY_DROP_ID = "tray-dropzone";
 const RACK_TILE_DND_TYPE = "rack-tile";
 const MAX_ATTEMPTS = 5;
-const ENABLE_CLICK_PLACEMENT = false;
+const ENABLE_CLICK_PLACEMENT = true;
 
 const getStorageKey = (puzzleId: string) => `${STORAGE_KEY_PREFIX}${puzzleId}`;
 

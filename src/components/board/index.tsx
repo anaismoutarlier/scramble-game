@@ -41,19 +41,13 @@ type PlacedTileDraggableProps = {
 };
 
 const PlacedTileDraggable = ({ rackTileId, children }: PlacedTileDraggableProps) => {
-	const { ref, handleRef, isDragging } = useDraggable({
+	const { ref, isDragging } = useDraggable({
 		id: `${gameDndIds.tileDragPrefix}${rackTileId}`,
 		type: gameDndIds.rackTileType,
 		data: { rackTileId, source: "board" },
 	});
 	return (
-		<div
-			ref={element => {
-				ref(element);
-				handleRef(element);
-			}}
-			className={cn("select-none touch-none", isDragging && "opacity-80")}
-		>
+		<div ref={ref} className={cn("select-none touch-none", isDragging && "opacity-80")}>
 			{children}
 		</div>
 	);
