@@ -1,6 +1,6 @@
 import { alphabet } from "@/data/alphabet";
-import type { Axis } from "@/hooks/types";
-import type { PuzzleDefinition } from "@/hooks/types";
+import type { Axis } from "@/context/types";
+import type { PuzzleDefinition } from "@/context/types";
 
 export type TopScoringWordPlacement = {
 	direction: Axis;

@@ -5,8 +5,9 @@ import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { alphabet } from "@/data/alphabet";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 import { mockPuzzleValidWordSet } from "@/data/mockPuzzleValidWords";
-import type { Axis, BoardTemplate, CellId, GameProgress, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/hooks/types";
+import type { Axis, BoardTemplate, CellId, GameProgress, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/context/types";
 import { toast } from "@/components/ui/toast";
+import { randomUUID } from "crypto";
 
 type StoredProgress = Omit<GameProgress, "currentAttempt">;
 
@@ -47,9 +48,9 @@ const MAX_ATTEMPTS = 5;
 const SLAM_BONUS_POINTS = 10;
 const ENABLE_CLICK_PLACEMENT = true;
 
-const getStorageKey = (puzzleId: string) => `${STORAGE_KEY_PREFIX}${puzzleId}`;
+const getStorageKey = (puzzleId: number) => `${STORAGE_KEY_PREFIX}${puzzleId}`;
 
-const createDefaultStoredProgress = (puzzleId: string, puzzleDate: string): StoredProgress => {
+const createDefaultStoredProgress = (puzzleId: number, puzzleDate: string): StoredProgress => {
 	const seededTimestamp = `${puzzleDate}T00:00:00.000Z`;
 	return {
 		puzzleId,
@@ -64,7 +65,7 @@ const createDefaultStoredProgress = (puzzleId: string, puzzleDate: string): Stor
 
 type StreakStorage = {
 	currentStreak: number;
-	lastCompletedPuzzleId?: string;
+	lastCompletedPuzzleId?: number;
 };
 
 const createDefaultStreakStorage = (): StreakStorage => ({
@@ -297,6 +298,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const removePlacedTile = useCallback((rackTileId: RackTileId) => {
 		setPlacedTiles(prev => prev.filter(tile => tile.rackTileId !== rackTileId));
+		setSelectedRackTileId(current => (current === rackTileId ? null : current));
+		setActiveDragLetter(null);
+		suppressClickRef.current = false;
 	}, []);
 
 	const getPlacedTileByCellId = useCallback((cellId: CellId) => placedTiles.find(tile => tile.cellId === cellId), [placedTiles]);
@@ -390,7 +394,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				attempts: [
 					...prev.attempts,
 					{
-						id: `attempt-${attemptNumber}`,
+						id: randomUUID(),
 						attemptNumber,
 						submittedAt: now,
 						word: candidateWord,
@@ -447,10 +451,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		});
 	}, []);
 
+	const resetDragSuppression = useCallback(() => {
+		suppressClickRef.current = false;
+	}, []);
+
+	const finalizeDrag = useCallback(
+		(nextSelectedRackTileId: RackTileId | null = null) => {
+			setSelectedRackTileId(current => {
+				if (nextSelectedRackTileId !== null) return nextSelectedRackTileId;
+				return current === nextSelectedRackTileId ? current : null;
+			});
+			setActiveDragLetter(null);
+			resetDragSuppression();
+		},
+		[resetDragSuppression],
+	);
+
 	const onDragStart = useCallback(
 		(event: DragStartEvent) => {
+			console.log(event);
 			const sourceRackTileId = parseRackTileId(event.operation.source?.id);
 			if (sourceRackTileId) {
+				setSelectedRackTileId(current => (current === sourceRackTileId ? null : current));
 				const placedTile = placedTiles.find(tile => tile.rackTileId === sourceRackTileId);
 				const letterFromRack = puzzle.rackTiles.find(tile => tile.id === sourceRackTileId)?.letter;
 				setActiveDragLetter(placedTile?.letter ?? letterFromRack ?? null);
@@ -463,54 +485,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const onDragEnd = useCallback(
 		(event: DragEndEvent) => {
-			setActiveDragLetter(null);
-			if (event.canceled) {
-				setTimeout(() => {
-					suppressClickRef.current = false;
-				}, 0);
-				return;
-			}
-
 			const sourceRackTileId = parseRackTileId(event.operation.source?.id);
-			if (!sourceRackTileId) {
-				setTimeout(() => {
-					suppressClickRef.current = false;
-				}, 0);
+			if (event.canceled || !sourceRackTileId) {
+				finalizeDrag();
 				return;
 			}
-			const sourceOrigin = event.operation.source?.data?.source;
 
+			const sourceOrigin = event.operation.source?.data?.source;
 			const targetId = event.operation.target?.id;
 			const targetCellId = parseCellId(targetId);
 
 			if (targetCellId) {
 				placeTileOnCell(sourceRackTileId, targetCellId);
-				setSelectedRackTileId(null);
-				setTimeout(() => {
-					suppressClickRef.current = false;
-				}, 0);
+				finalizeDrag(null);
 				return;
 			}
 
 			if (targetId === TRAY_DROP_ID) {
 				removePlacedTile(sourceRackTileId);
-				setSelectedRackTileId(null);
-				setTimeout(() => {
-					suppressClickRef.current = false;
-				}, 0);
+				finalizeDrag(null);
 				return;
 			}
 
 			if (!event.operation.target && sourceOrigin === "board") {
 				removePlacedTile(sourceRackTileId);
-				setSelectedRackTileId(null);
 			}
 
-			setTimeout(() => {
-				suppressClickRef.current = false;
-			}, 0);
+			finalizeDrag();
 		},
-		[placeTileOnCell, removePlacedTile],
+		[finalizeDrag, placeTileOnCell, removePlacedTile],
 	);
 
 	const progress = useMemo<GameProgress>(

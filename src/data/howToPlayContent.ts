@@ -1,4 +1,4 @@
-import type { BonusTile } from "@/hooks/types";
+import type { BonusTile } from "@/context/types";
 
 type RuleSegment = {
 	text: string;

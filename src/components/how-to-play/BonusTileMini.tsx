@@ -1,4 +1,4 @@
-import type { BonusTile } from "@/hooks/types";
+import type { BonusTile } from "@/context/types";
 import { cn } from "@/lib/cn";
 
 const bonusTileStyles: Record<BonusTile, { label: string; surfaceClass: string; textClass: string }> = {

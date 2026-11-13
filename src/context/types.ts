@@ -13,7 +13,7 @@ export type ValidationErrorCode =
 	| "attempt_limit_reached";
 
 export type CellId = string;
-export type PuzzleId = string;
+export type PuzzleId = number;
 export type RackTileId = string;
 
 export interface RackTile {

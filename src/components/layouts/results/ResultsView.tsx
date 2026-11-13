@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import { mockPuzzleValidWords } from "@/data/mockPuzzleValidWords";
 import { calculateTopScoringWords } from "@/lib/bestPossibleWords";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
-import { GameProgress, PuzzleDefinition } from "@/hooks/types";
+import { GameProgress, PuzzleDefinition } from "@/context/types";
 
 const MAX_ATTEMPTS = 5;
 

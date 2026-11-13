@@ -2,7 +2,7 @@
 
 import { type ReactNode } from "react";
 import { BoardTile } from "../../../board/BoardTile";
-import { PuzzleDefinition } from "@/hooks/types";
+import { PuzzleDefinition } from "@/context/types";
 import { cn } from "@/lib/cn";
 
 type BoardCellSlotProps = { colStart: number; children: ReactNode };

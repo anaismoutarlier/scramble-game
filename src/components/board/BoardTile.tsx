@@ -1,6 +1,6 @@
 "use client";
 
-import type { BoardCell } from "@/hooks/types";
+import type { BoardCell } from "@/context/types";
 import { cn } from "@/lib/cn";
 import { alphabet } from "@/data/alphabet";
 
