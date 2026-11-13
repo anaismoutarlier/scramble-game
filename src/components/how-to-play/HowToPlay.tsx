@@ -33,7 +33,7 @@ export function HowToPlay({ buttonProps, onTriggerClick }: HowToPlayProps) {
 			<DialogContent
 				showCloseButton={false}
 				animation="none"
-				className="how-to-play-panel top-4 right-2 left-auto translate-x-0 translate-y-0 w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] max-w-4xl rounded-2xl bg-light p-6 sm:p-8 md:px-6 md:py-8 text-dark ring-0 gap-0"
+				className="how-to-play-panel top-4 right-2 left-auto translate-x-0 translate-y-0 w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] max-w-4xl rounded-2xl bg-light p-6 sm:p-8 md:px-6 md:py-8 text-dark ring-0 gap-0 max-h-[93vh] overflow-y-scroll"
 			>
 				<HowToPlayDialogPanel />
 			</DialogContent>
