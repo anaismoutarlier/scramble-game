@@ -3,7 +3,7 @@ import { Redis } from "@upstash/redis";
 import moment from "moment";
 import { randomUUID } from "crypto";
 import { getRandomInt } from "./utils";
-import { generateWord } from "./generateWord";
+import { generateRackLetters } from "./generateRackLetters";
 
 const redis = Redis.fromEnv();
 
@@ -62,22 +62,22 @@ const generateBonusTiles = () => {
 	);
 };
 
-export const generatePuzzleStructure = async ({ word }: { word: string[7] }) => {
+export const generatePuzzleStructure = async ({ letters }: { letters: string[7] }) => {
 	const prevPuzzleIdentifier = await redis.lindex("puzzles:all", -1);
 	const prevPuzzleId = prevPuzzleIdentifier ? Number(prevPuzzleIdentifier) : null;
 	const id = prevPuzzleId ? prevPuzzleId + 1 : 1;
 	const date = moment().format("YYYY-MM-DD");
-	const letters = Array.from(word);
-	if (letters.length !== 7) {
-		throw new Error(`Expected 7 letters for puzzle rack, received ${letters.length}: ${word}`);
+	const letterArr = Array.from(letters);
+	if (letterArr.length !== 7) {
+		throw new Error(`Expected 7 letters for puzzle rack, received ${letterArr.length}: ${letters}`);
 	}
-	const rackTiles = letters.map(letter => ({ id: randomUUID(), letter })) as unknown as RackTiles;
+	const rackTiles = letterArr.map(letter => ({ id: randomUUID(), letter })) as unknown as RackTiles;
 	const board = {
 		...structuredClone(boardTemplate),
 		cellsById: generateBonusTiles(),
 	};
 	const generation = {
-		seed: `${id}-${date}-${word}`,
+		seed: `${id}-${date}-${letters}`,
 		bonusDistributionVersion: "v1",
 		scoringVersion: "v1",
 		dictionaryVersion: "v1",
@@ -95,17 +95,22 @@ export const generatePuzzleStructure = async ({ word }: { word: string[7] }) => 
 export type PuzzleEnvelope = { id: number; date: string; puzzle: PuzzleDefinition; dictionary: string[]; createdAt: Date };
 
 export const generatePuzzle = async () => {
-	const { word, dictionary } = await generateWord();
-	if (!word || !dictionary?.length) return;
+	try {
+		const { letters, dictionary } = await generateRackLetters();
+		console.log("Generated rack letters: ", letters);
+		if (!letters || !dictionary?.length) return;
 
-	const puzzle = await generatePuzzleStructure({ word });
+		const puzzle = await generatePuzzleStructure({ letters });
 
-	const rackKey = `puzzle:${puzzle.id}`;
+		const rackKey = `puzzle:${puzzle.id}`;
 
-	const puzzleEnvelope: PuzzleEnvelope = { id: puzzle.id, date: puzzle.date, puzzle, dictionary, createdAt: new Date() };
-	const pipeline = redis.pipeline();
-	pipeline.lpush("puzzles:all", puzzle.id);
-	pipeline.lpush("used-words:all", word);
-	pipeline.set(rackKey, JSON.stringify(puzzleEnvelope), { ex: 3 * 60 * 60 * 24 });
-	await pipeline.exec();
+		const puzzleEnvelope: PuzzleEnvelope = { id: puzzle.id, date: puzzle.date, puzzle, dictionary, createdAt: new Date() };
+		const pipeline = redis.pipeline();
+		pipeline.lpush("puzzles:all", puzzle.id);
+		pipeline.lpush("racks:all", letters);
+		pipeline.set(rackKey, JSON.stringify(puzzleEnvelope), { ex: 3 * 60 * 60 * 24 });
+		await pipeline.exec();
+	} catch (error) {
+		console.error(error);
+	}
 };
