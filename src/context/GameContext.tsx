@@ -153,8 +153,21 @@ const calculateDraftScore = (
 	};
 };
 
+/**
+ * Function to determine if placed tiles are a valid attempt, based on the following criteria:
+ * - fewer than 2 tiles placed
+ * - no center tile included
+ * - placed tiles filtering leaves fewer than 2 valid board-mapped tiles
+ * - tiles are not all on one axis (row/column)
+ * - tiles are not contiguous on that axis
+ *
+ *This function will NOT determine if the tiles form a valid word, only if the placement is valid. Word validation occurs after submittion.
+ * @param placedTiles
+ * @param board
+ */
 const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardTemplate): PlacementValidation => {
 	if (placedTiles.length < 2) {
+		// Fails when fewer than 2 tiles are placed: cannot form a valid word.
 		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
 	}
 
@@ -166,9 +179,11 @@ const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardT
 		.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
 	if (!tilesWithCoordinates.some(el => el.isCenter)) {
+		// Fails when no placed tile is on the center cell: every word must cross the center.
 		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
 	}
 	if (tilesWithCoordinates.length < 2) {
+		// Fails when placed tiles don't map to valid board cells and fewer than 2 remain after filtering.
 		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
 	}
 
@@ -177,6 +192,7 @@ const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardT
 
 	const axis: Axis | null = uniqueRows.size === 1 ? "horizontal" : uniqueColumns.size === 1 ? "vertical" : null;
 	if (!axis) {
+		// Fails when tiles are not in a single row or a single column.
 		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
 	}
 
@@ -188,6 +204,7 @@ const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardT
 	const isContiguous = maxCoordinate - minCoordinate + 1 === orderedByAxis.length;
 
 	if (!isContiguous) {
+		// Fails when there is a gap between placed tiles along the detected axis.
 		return { isSubmittable: false, axis, candidateWord: "", orderedTiles: orderedByAxis.map(entry => entry.tile) };
 	}
 
