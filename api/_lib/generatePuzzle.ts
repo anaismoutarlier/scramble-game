@@ -1,4 +1,4 @@
-import type { BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "@/context/types";
+import type { PuzzleEnvelope, BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "@/context/types";
 import { Redis } from "@upstash/redis";
 import moment from "moment";
 import { randomUUID } from "crypto";
@@ -91,8 +91,6 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 		board,
 	};
 };
-
-export type PuzzleEnvelope = { id: number; date: string; puzzle: PuzzleDefinition; dictionary: string[]; createdAt: Date };
 
 export const generatePuzzle = async () => {
 	try {

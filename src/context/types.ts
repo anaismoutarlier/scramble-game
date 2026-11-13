@@ -128,3 +128,5 @@ export interface GameStateSchema {
 	puzzle: PuzzleDefinition;
 	progress: GameProgress;
 }
+
+export type PuzzleEnvelope = { id: number; date: string; puzzle: PuzzleDefinition; dictionary: string[]; createdAt: Date };
