@@ -101,15 +101,18 @@ export const generatePuzzle = async () => {
 		if (!letters || !dictionary?.length) return;
 
 		const puzzle = await generatePuzzleStructure({ letters });
+		console.log("Generated puzzle config.");
 
 		const rackKey = `puzzle:${puzzle.id}`;
 
 		const puzzleEnvelope: PuzzleEnvelope = { id: puzzle.id, date: puzzle.date, puzzle, dictionary, createdAt: new Date() };
+		console.log("Puzzle envelope created:", puzzleEnvelope);
 		const pipeline = redis.pipeline();
 		pipeline.lpush("puzzles:all", puzzle.id);
 		pipeline.lpush("racks:all", letters);
 		pipeline.set(rackKey, JSON.stringify(puzzleEnvelope), { ex: 3 * 60 * 60 * 24 });
 		await pipeline.exec();
+		console.log("Data uploaded.");
 	} catch (error) {
 		console.error(error);
 	}
