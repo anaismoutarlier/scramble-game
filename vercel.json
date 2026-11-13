@@ -8,7 +8,7 @@
 		}
 	},
 	"functions": {
-		"api/generate.mts": {
+		"api/generate.ts": {
 			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
 		}
 	}
