@@ -113,9 +113,7 @@ export const generatePuzzle = async () => {
 		pipeline.set(rackKey, JSON.stringify(puzzleEnvelope), { ex: 3 * 60 * 60 * 24 });
 		await pipeline.exec();
 		console.log("Data uploaded.");
-		Response.json({ ok: true });
 	} catch (error) {
 		console.error(error);
-		Response.json({ ok: false });
 	}
 };
