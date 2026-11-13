@@ -1,7 +1,6 @@
 import { CurrentStreakCard } from "../current-streak-card";
 import { Wordmark } from "../wordmark";
-import { Info } from "lucide-react";
-import { Button } from "../button";
+import { HowToPlay } from "../how-to-play";
 
 export const DesktopHeader = ({
 	date,
@@ -35,7 +34,7 @@ export const DesktopHeader = ({
 						<div className="text-light text-center text-sm lg:text-base font-bold font-sans">Day #{puzzleNo}</div>
 					</div>
 					<span className="w-px h-10 bg-primary" />
-					<Button icon={Info}>How to Play</Button>
+						<HowToPlay />
 				</div>
 			</div>
 		</header>

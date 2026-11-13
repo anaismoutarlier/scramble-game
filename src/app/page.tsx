@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { Loader2Icon } from "lucide-react";
 import { Header } from "@/components/header";
 import { GameLayout } from "@/components/layouts/Game";
-import { ResultsLayout } from "@/components/layouts/Results";
+import { ResultsLayout } from "@/components/layouts/results";
 import { Start } from "@/components/layouts/Start";
 import { Footer } from "@/components/footer";
 import { GameProvider, useGameContext } from "@/context/GameContext";

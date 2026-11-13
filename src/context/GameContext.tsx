@@ -89,7 +89,7 @@ const normalizeStoredProgress = (parsed: Partial<StoredProgress>, fallback: Stor
 			: parsed.status === "unstarted"
 				? "unstarted"
 				: (typeof parsed.attemptsUsed === "number" && parsed.attemptsUsed > 0) ||
-						(Array.isArray(parsed.attempts) && parsed.attempts.length > 0)
+					  (Array.isArray(parsed.attempts) && parsed.attempts.length > 0)
 					? "in_progress"
 					: "unstarted",
 	startedAt: typeof parsed.startedAt === "string" ? parsed.startedAt : fallback.startedAt,
@@ -161,10 +161,13 @@ const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardT
 	const tilesWithCoordinates = placedTiles
 		.map(tile => {
 			const cell = board.cellsById[tile.cellId];
-			return cell ? { tile, row: cell.coordinate.row, column: cell.coordinate.column } : null;
+			return cell ? { tile, row: cell.coordinate.row, column: cell.coordinate.column, isCenter: cell.isCenter } : null;
 		})
 		.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
+	if (!tilesWithCoordinates.some(el => el.isCenter)) {
+		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
+	}
 	if (tilesWithCoordinates.length < 2) {
 		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
 	}

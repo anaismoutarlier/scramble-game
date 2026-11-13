@@ -4,6 +4,7 @@ import { useGameContext } from "@/context/GameContext";
 import moment from "moment";
 import { cn } from "@/lib/cn";
 import { Wordmark } from "../wordmark";
+import { HowToPlay } from "../how-to-play";
 
 type StartProps = {
 	onPlay: () => void;
@@ -37,9 +38,7 @@ export function Start({ onPlay, onWordmarkReady }: StartProps) {
 				</div>
 
 				<div className="inline-flex flex-wrap justify-center items-center gap-2.5">
-					<Button variant="outlined" icon={Info}>
-						How to Play
-					</Button>
+					<HowToPlay buttonProps={{ variant: "outlined", icon: Info }} />
 					<Button onClick={onPlay}>Play</Button>
 				</div>
 

@@ -38,6 +38,7 @@ export function BoardTile({
 	hasBottomNeighbor,
 	onClick,
 	isInteractive = false,
+	colorScheme = "dark",
 }: BoardCell & {
 	colStart?: number;
 	placedLetter?: string;
@@ -47,9 +48,10 @@ export function BoardTile({
 	hasBottomNeighbor?: boolean;
 	onClick?: () => void;
 	isInteractive?: boolean;
+	colorScheme?: "dark" | "light";
 }) {
 	const textColor = isCenter ? textColors.center : bonus ? textColors[bonus] : "";
-	const bgColor = isCenter ? bgColors.center : bonus ? bgColors[bonus] : "bg-light/60";
+	const bgColor = isCenter ? bgColors.center : bonus ? bgColors[bonus] : colorScheme === "light" ? "bg-dark/20" : "bg-light/60";
 	const outlineColor = bonus ? outlineColors[bonus] : "outline-transparent";
 
 	const tileValue = placedLetter ? alphabet[placedLetter] : null;
@@ -89,7 +91,9 @@ export function BoardTile({
 			<div
 				className={cn(
 					"w-full h-full relative rounded-sm flex justify-center items-center uppercase pointer-events-none",
-					placedLetter ? `max-[400px]:outline-[0.5px] outline-1 md:outline-2 ${outlineColor} bg-tile-letter-surface` : bgColor,
+					placedLetter
+						? `max-[400px]:outline-[0.5px] max-[400px]:-outline-offset-[0.5px] -outline-offset-1 outline-1 md:outline-[1.5px] md:-outline-offset-[1.5px] ${outlineColor} bg-tile-letter-surface`
+						: bgColor,
 					placedLetter ? "text-dark" : textColor,
 				)}
 			>
@@ -113,7 +117,7 @@ export function BoardTile({
 				{placedLetter ? (
 					<span className="font-semibold text-xs sm:text-sm md:text-base lg:text-xl">{placedLetter}</span>
 				) : (
-					<span className="font-oi text-[9px] md:text-xs xl:text-sm">{isCenter ? "★" : bonus}</span>
+					<span className="font-oi max-[300px]:text-[6px] text-[9px] md:text-xs xl:text-sm">{isCenter ? "★" : bonus}</span>
 				)}
 			</div>
 		</div>

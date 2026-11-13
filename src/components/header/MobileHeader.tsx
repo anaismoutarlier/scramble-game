@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Info, Menu, X } from "lucide-react";
-import { Button } from "../button";
 import { CurrentStreakCard } from "../current-streak-card";
 import { Wordmark } from "../wordmark";
 import { cn } from "@/lib/cn";
+import { HowToPlay } from "../how-to-play";
 
 export function MobileHeader({
 	date,
@@ -81,9 +81,7 @@ export function MobileHeader({
 						{currentStreak && <CurrentStreakCard currentStreak={currentStreak} size="compact" />}
 					</div>
 
-					<Button variant="outlined" icon={Info}>
-						How to Play
-					</Button>
+					<HowToPlay buttonProps={{ variant: "outlined", icon: Info }} onTriggerClick={() => setIsMenuOpen(false)} />
 				</aside>
 			</div>
 		</header>

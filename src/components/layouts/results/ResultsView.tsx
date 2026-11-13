@@ -4,12 +4,12 @@ import moment from "moment";
 import { use, useEffect, useMemo, useState, Suspense } from "react";
 import { io } from "next/cache";
 import { Share2 } from "lucide-react";
-import { Button } from "../button";
+import { Button } from "../../button";
 import { cn } from "@/lib/cn";
-import { useGameContext } from "@/context/GameContext";
 import { mockPuzzleValidWords } from "@/data/mockPuzzleValidWords";
 import { calculateTopScoringWords } from "@/lib/bestPossibleWords";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
+import { GameProgress, PuzzleDefinition } from "@/hooks/types";
 
 const MAX_ATTEMPTS = 5;
 
@@ -66,9 +66,15 @@ function ResultWordRow({ attemptNumber, word, score }: ResultWordRowProps) {
 	);
 }
 
-export function ResultsLayout() {
-	const { puzzle, progress } = useGameContext();
-
+export const ResultsMainContent = ({
+	puzzle,
+	progress,
+	toggleView,
+}: {
+	puzzle: PuzzleDefinition;
+	progress: GameProgress;
+	toggleView: (v: "results" | "review") => void;
+}) => {
 	const bestPossibleWords = useMemo(() => calculateTopScoringWords(puzzle, mockPuzzleValidWords), [puzzle]);
 	const bestPossibleScore = useMemo(
 		() => bestPossibleWords.reduce((total, wordEntry) => total + wordEntry.score, 0),
@@ -165,7 +171,7 @@ export function ResultsLayout() {
 					<Button className="w-full" theme="light" icon={Share2}>
 						Share Results
 					</Button>
-					<Button variant="outlined" theme="primary" className="w-full">
+					<Button variant="outlined" theme="primary" className="w-full" onClick={() => toggleView("review")}>
 						Review words
 					</Button>
 				</div>
@@ -182,4 +188,4 @@ export function ResultsLayout() {
 			</section>
 		</main>
 	);
-}
+};

@@ -1,12 +1,20 @@
 import { alphabet } from "@/data/alphabet";
+import type { Axis } from "@/hooks/types";
 import type { PuzzleDefinition } from "@/hooks/types";
 
-type TopScoringWord = {
-	word: string;
+export type TopScoringWordPlacement = {
+	direction: Axis;
+	placementCellIds: string[];
 	score: number;
 };
 
-const SLAM_BONUS_POINTS = 10;
+export type TopScoringWord = {
+	word: string;
+	score: number;
+	placements: TopScoringWordPlacement[];
+};
+
+const SLAM_BONUS_POINTS = 45;
 
 function canBuildWordFromRack(word: string, rackLetters: readonly string[]): boolean {
 	const availableCounts = new Map<string, number>();
@@ -57,9 +65,9 @@ function calculatePlacementScore(word: string, placementCellIds: string[], puzzl
 	return baseLetterScore * wordMultiplierTotal + slamBonus;
 }
 
-function getBestScoreForWord(word: string, puzzle: PuzzleDefinition): number {
+function getScoredPlacementsForWord(word: string, puzzle: PuzzleDefinition): TopScoringWordPlacement[] {
 	const axisCellGroups = [puzzle.board.horizontalAxis, puzzle.board.verticalAxis];
-	let bestScore = 0;
+	const placements: TopScoringWordPlacement[] = [];
 
 	for (const axisCells of axisCellGroups) {
 		const placementWindowCount = axisCells.length - word.length + 1;
@@ -68,11 +76,16 @@ function getBestScoreForWord(word: string, puzzle: PuzzleDefinition): number {
 		for (let start = 0; start < placementWindowCount; start += 1) {
 			const placementCellIds = axisCells.slice(start, start + word.length);
 			const score = calculatePlacementScore(word, placementCellIds, puzzle);
-			bestScore = Math.max(bestScore, score);
+
+			placements.push({
+				direction: axisCellGroups.indexOf(axisCells) === 0 ? "horizontal" : "vertical",
+				placementCellIds,
+				score,
+			});
 		}
 	}
 
-	return bestScore;
+	return placements;
 }
 
 export function calculateTopScoringWords(
@@ -88,7 +101,18 @@ export function calculateTopScoringWords(
 		.filter((word, index, allWords) => allWords.indexOf(word) === index)
 		.filter(word => word.length >= 2 && word.length <= puzzle.rackTiles.length)
 		.filter(word => canBuildWordFromRack(word, rackLetters))
-		.map(word => ({ word, score: getBestScoreForWord(word, puzzle) }))
+		.map(word => {
+			const placements = getScoredPlacementsForWord(word, puzzle);
+			const score = placements.reduce((best, placement) => Math.max(best, placement.score), 0);
+			const sortedPlacements = [...placements].sort((a, b) => {
+				if (b.score !== a.score) return b.score - a.score;
+				if (a.direction !== b.direction) return a.direction.localeCompare(b.direction);
+				const aFirstCell = a.placementCellIds[0] ?? "";
+				const bFirstCell = b.placementCellIds[0] ?? "";
+				return aFirstCell.localeCompare(bFirstCell);
+			});
+			return { word, score, placements: sortedPlacements };
+		})
 		.sort((a, b) => {
 			if (b.score !== a.score) return b.score - a.score;
 			if (b.word.length !== a.word.length) return b.word.length - a.word.length;
