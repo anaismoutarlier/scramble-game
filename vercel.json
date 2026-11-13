@@ -1,11 +1,12 @@
 {
+	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"functions": {
-		"api/generate.ts": {
+		"app/api/generate.ts": {
 			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
 		}
 	},
 	"schedules": {
-		"cleanup": {
+		"generate": {
 			"schedule": "0 0 * * *",
 			"function": "api/generate",
 			"timezone": "Pacific/Kiritimati"
