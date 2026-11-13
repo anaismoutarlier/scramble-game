@@ -110,7 +110,8 @@ export const generatePuzzle = async () => {
 		pipeline.lpush("racks:all", letters);
 		pipeline.set(rackKey, JSON.stringify(puzzleEnvelope), { ex: 3 * 60 * 60 * 24 });
 		await pipeline.exec();
-		console.log("Data uploaded.");
+		console.log("Data uploaded.", puzzleEnvelope);
+		return puzzleEnvelope;
 	} catch (error) {
 		console.error(error);
 	}
