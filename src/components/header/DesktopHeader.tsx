@@ -7,16 +7,20 @@ export const DesktopHeader = ({
 	date,
 	currentStreak,
 	puzzleNo,
+	wordmarkRef,
 }: {
 	date: string;
 	currentStreak?: string | number;
 	puzzleNo: string | number;
+	wordmarkRef?: (element: HTMLDivElement | null) => void;
 }) => {
 	return (
 		<header className="hidden md:block w-full px-3 h-[100px]">
 			<div className="px-6 w-full flex justify-between py-2 h-25 border-b-[0.5px] border-primary">
 				<div className="inline-flex flex-col lg:flex-row gap-1 lg:gap-3 justify-center lg:justify-start lg:items-center">
-					<Wordmark />
+					<div ref={wordmarkRef}>
+						<Wordmark />
+					</div>
 					<div className="inline-flex gap-3 text-light text-xs font-normal font-sans items-start lg:items-center">
 						<div className="hidden lg:block">•</div>
 						<div>A daily word puzzle</div>

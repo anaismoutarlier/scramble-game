@@ -1,7 +1,7 @@
 export type BonusTile = "dl" | "tl" | "dw" | "tw";
 export type Axis = "horizontal" | "vertical";
 export type AxisMembership = Axis | "both";
-export type GameStatus = "in_progress" | "completed";
+export type GameStatus = "unstarted" | "in_progress" | "completed";
 export type ValidationErrorCode =
 	| "invalid_word"
 	| "invalid_characters"

@@ -21,6 +21,7 @@ type GameContextValue = {
 	puzzle: typeof mockPuzzleDefinition;
 	progress: GameProgress;
 	currentStreak: number;
+	onStartPuzzle: () => void;
 	isClickPlacementEnabled: boolean;
 	selectedRackTileId: RackTileId | null;
 	placementValidation: PlacementValidation;
@@ -52,7 +53,7 @@ const createDefaultStoredProgress = (puzzleId: string, puzzleDate: string): Stor
 	const seededTimestamp = `${puzzleDate}T00:00:00.000Z`;
 	return {
 		puzzleId,
-		status: "in_progress",
+		status: "unstarted",
 		attemptsUsed: 0,
 		totalScore: 0,
 		attempts: [],
@@ -82,7 +83,15 @@ const normalizeStoredProgress = (parsed: Partial<StoredProgress>, fallback: Stor
 	attempts: Array.isArray(parsed.attempts) ? parsed.attempts : fallback.attempts,
 	attemptsUsed: typeof parsed.attemptsUsed === "number" ? parsed.attemptsUsed : fallback.attemptsUsed,
 	totalScore: typeof parsed.totalScore === "number" ? parsed.totalScore : fallback.totalScore,
-	status: parsed.status === "completed" ? "completed" : "in_progress",
+	status:
+		parsed.status === "completed"
+			? "completed"
+			: parsed.status === "unstarted"
+				? "unstarted"
+				: (typeof parsed.attemptsUsed === "number" && parsed.attemptsUsed > 0) ||
+						(Array.isArray(parsed.attempts) && parsed.attempts.length > 0)
+					? "in_progress"
+					: "unstarted",
 	startedAt: typeof parsed.startedAt === "string" ? parsed.startedAt : fallback.startedAt,
 	updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : fallback.updatedAt,
 	completedAt: typeof parsed.completedAt === "string" ? parsed.completedAt : undefined,
@@ -355,7 +364,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				...prev,
 				attemptsUsed: nextAttemptsUsed,
 				totalScore,
-				status: nextAttemptsUsed >= MAX_ATTEMPTS ? "completed" : prev.status,
+				status: nextAttemptsUsed >= MAX_ATTEMPTS ? "completed" : "in_progress",
 				updatedAt: now,
 				completedAt: nextAttemptsUsed >= MAX_ATTEMPTS ? now : prev.completedAt,
 				attempts: [
@@ -403,6 +412,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					: `Great job! You got ${currentAttemptScore.total} points. That was your final attempt.`,
 		});
 	}, [currentAttemptScore, placementValidation, savedProgress.attempts, savedProgress.attemptsUsed, savedProgress.puzzleId]);
+
+	const onStartPuzzle = useCallback(() => {
+		setSavedProgress(prev => {
+			if (prev.status !== "unstarted") {
+				return prev;
+			}
+
+			return {
+				...prev,
+				status: "in_progress",
+				updatedAt: new Date().toISOString(),
+			};
+		});
+	}, []);
 
 	const onDragStart = useCallback(
 		(event: DragStartEvent) => {
@@ -487,6 +510,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			puzzle,
 			progress,
 			currentStreak: streakStorage.currentStreak,
+			onStartPuzzle,
 			isClickPlacementEnabled: ENABLE_CLICK_PLACEMENT,
 			selectedRackTileId,
 			placementValidation,
@@ -508,6 +532,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			onDragEnd,
 			onDragStart,
 			onRackTileClick,
+			onStartPuzzle,
 			onSubmitCurrentAttempt,
 			placementValidation,
 			progress,

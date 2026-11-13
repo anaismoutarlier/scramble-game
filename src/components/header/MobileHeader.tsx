@@ -11,10 +11,12 @@ export function MobileHeader({
 	date,
 	currentStreak,
 	puzzleNo,
+	wordmarkRef,
 }: {
 	date: string;
 	currentStreak?: string | number;
 	puzzleNo: string | number;
+	wordmarkRef?: (element: HTMLDivElement | null) => void;
 }) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -37,7 +39,9 @@ export function MobileHeader({
 		>
 			<div className={"w-full h-full self-stretch py-4 flex justify-between items-center gap-3 px-4 sm:px-8"}>
 				<div className="inline-flex flex-col gap-1 min-w-0">
-					<Wordmark size="compact" />
+					<div ref={wordmarkRef}>
+						<Wordmark size="compact" />
+					</div>
 					<div className="text-light text-xs font-normal font-sans">A daily word puzzle</div>
 				</div>
 				<div className="inline-flex items-center gap-2 shrink-0">
