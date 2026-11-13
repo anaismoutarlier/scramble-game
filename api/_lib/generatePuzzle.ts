@@ -1,9 +1,9 @@
-import { BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "@/context/types";
+import type { BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "@/context/types";
 import { Redis } from "@upstash/redis";
 import moment from "moment";
 import { randomUUID } from "crypto";
-import { getRandomInt } from "../../src/lib/utils";
-import { generateRackLetters } from "./generateRackLetters";
+import { getRandomInt } from "./utils.js";
+import { generateRackLetters } from "./generateRackLetters.js";
 
 const redis = Redis.fromEnv();
 

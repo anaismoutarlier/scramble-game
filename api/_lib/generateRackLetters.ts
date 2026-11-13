@@ -1,8 +1,8 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { findSubWords } from "./sub-words";
+import { findSubWords } from "./sub-words.js";
 import { Redis } from "@upstash/redis";
-import { getRandomInt, randomize } from "../../src/lib/utils";
+import { getRandomInt, randomize } from "./utils.js";
 const redis = Redis.fromEnv();
 
 export const generateRackLetters = async (): Promise<{ letters: string[7]; dictionary: string[] }> => {
