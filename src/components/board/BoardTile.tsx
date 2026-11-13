@@ -21,10 +21,10 @@ const textColors = {
 };
 
 const outlineColors = {
-	dw: "outline-tile-dw-text",
-	dl: "outline-tile-dl-text",
-	tw: "outline-tile-tw-text",
-	tl: "outline-tile-tl-text",
+	dw: "outline-[color-mix(in_oklab,var(--tile-dw-surface)_70%,var(--dark))]",
+	dl: "outline-[color-mix(in_oklab,var(--tile-dl-surface)_70%,var(--dark))]",
+	tw: "outline-[color-mix(in_oklab,var(--tile-tw-surface)_70%,var(--dark))]",
+	tl: "outline-[color-mix(in_oklab,var(--tile-tl-surface)_80%,var(--dark))]",
 };
 
 export function BoardTile({
@@ -54,7 +54,7 @@ export function BoardTile({
 	const bgColor = isCenter ? bgColors.center : bonus ? bgColors[bonus] : colorScheme === "light" ? "bg-dark/20" : "bg-light/60";
 	const outlineColor = bonus ? outlineColors[bonus] : "outline-transparent";
 
-	const tileValue = placedLetter ? alphabet[placedLetter] : null;
+	const tileValue = placedLetter ? alphabet[placedLetter.toLowerCase()] : null;
 	const hasAnyNeighbor = Boolean(hasLeftNeighbor || hasRightNeighbor || hasTopNeighbor || hasBottomNeighbor);
 	const isIsolatedPlacement = placedLetter && !hasAnyNeighbor;
 	const connectedRadiusClass =
@@ -90,11 +90,12 @@ export function BoardTile({
 		>
 			<div
 				className={cn(
-					"w-full h-full relative rounded-sm flex justify-center items-center uppercase pointer-events-none",
+					"w-full h-full relative flex justify-center items-center uppercase pointer-events-none",
 					placedLetter
 						? `max-[400px]:outline-[0.5px] max-[400px]:-outline-offset-[0.5px] -outline-offset-1 outline-1 md:outline-[1.5px] md:-outline-offset-[1.5px] ${outlineColor} bg-tile-letter-surface`
 						: bgColor,
 					placedLetter ? "text-dark" : textColor,
+					placedLetter ? "rounded-lg" : "rounded-sm",
 				)}
 			>
 				{placedLetter && (
