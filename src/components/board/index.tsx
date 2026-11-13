@@ -7,7 +7,7 @@ import { gameDndIds, useGameContext } from "@/context/GameContext";
 import { cn } from "@/lib/cn";
 
 const SubmitTray = () => {
-	const { progress, placementValidation, onSubmitCurrentAttempt, submissionFeedback } = useGameContext();
+	const { progress, placementValidation, onSubmitCurrentAttempt } = useGameContext();
 
 	return (
 		<div className="inline-flex flex-col px-4 justify-start items-center gap-3 sm:gap-5">
@@ -18,16 +18,6 @@ const SubmitTray = () => {
 					{progress.currentAttempt?.score.total ?? 0} points
 				</div>
 			</div>
-			{submissionFeedback.type !== "none" && (
-				<div
-					className={cn(
-						"w-full text-center text-xs sm:text-sm font-semibold",
-						submissionFeedback.type === "valid" ? "text-primary" : "text-tile-tw-text",
-					)}
-				>
-					{submissionFeedback.message}
-				</div>
-			)}
 			<Button className="w-full sm:max-w-sm" disabled={!placementValidation.isSubmittable} onClick={onSubmitCurrentAttempt}>
 				Submit
 			</Button>
@@ -147,7 +137,7 @@ export function Board() {
 					);
 				})}
 			</div>
-			{currentAttempt && <SubmitTray />}
+			{currentAttempt?.placedTiles?.length && <SubmitTray />}
 		</div>
 	);
 }

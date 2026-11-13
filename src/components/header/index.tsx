@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { DesktopHeader } from "./DesktopHeader";
 import { MobileHeader } from "./MobileHeader";
 import { Wordmark } from "../wordmark";
+import { useGameContext } from "@/context/GameContext";
 
 const LOGO_MOVE_DURATION_MS = 650;
 const CONTENT_FADE_IN_DELAY_MS = 150;
@@ -13,22 +14,16 @@ const OVERLAY_EXIT_BUFFER_MS = 220;
 export const Header = ({
 	stage = "game",
 	currentStreak = 7,
-	puzzleNo = 142,
 }: {
 	stage?: "start" | "start-game" | "game";
 	currentStreak?: string | number;
-	puzzleNo?: string | number;
 }) => {
-	const [date, setDate] = useState("");
 	const [showTransitionOverlay, setShowTransitionOverlay] = useState(stage === "start");
 	const [logoInCorner, setLogoInCorner] = useState(stage === "game");
 	const [showHeaderContent, setShowHeaderContent] = useState(stage === "game");
+	const { puzzle } = useGameContext();
 
-	useEffect(() => {
-		(() => {
-			setDate(moment().format("MMMM DD[th], YYYY"));
-		})();
-	}, []);
+	const displayDate = moment(puzzle.date).format("MMMM DD[th], YYYY");
 
 	useEffect(() => {
 		if (stage !== "game") {
@@ -59,9 +54,12 @@ export const Header = ({
 			setShowHeaderContent(true);
 		}, LOGO_MOVE_DURATION_MS + CONTENT_FADE_IN_DELAY_MS);
 
-		const hideOverlayTimeout = window.setTimeout(() => {
-			setShowTransitionOverlay(false);
-		}, LOGO_MOVE_DURATION_MS + CONTENT_FADE_IN_DELAY_MS + OVERLAY_EXIT_BUFFER_MS);
+		const hideOverlayTimeout = window.setTimeout(
+			() => {
+				setShowTransitionOverlay(false);
+			},
+			LOGO_MOVE_DURATION_MS + CONTENT_FADE_IN_DELAY_MS + OVERLAY_EXIT_BUFFER_MS,
+		);
 
 		return () => {
 			window.cancelAnimationFrame(moveAnimationFrame);
@@ -78,9 +76,11 @@ export const Header = ({
 	return (
 		<div className="relative">
 			<div className="h-[100px] md:hidden" aria-hidden />
-			<div className={cn("transition-opacity duration-500", shouldShowHeaderContent ? "opacity-100" : "opacity-0 pointer-events-none")}>
-				<DesktopHeader currentStreak={currentStreak} date={date} puzzleNo={puzzleNo} />
-				<MobileHeader currentStreak={currentStreak} date={date} puzzleNo={puzzleNo} />
+			<div
+				className={cn("transition-opacity duration-500", shouldShowHeaderContent ? "opacity-100" : "opacity-0 pointer-events-none")}
+			>
+				<DesktopHeader currentStreak={currentStreak} date={displayDate} puzzleNo={puzzle.id} />
+				<MobileHeader currentStreak={currentStreak} date={displayDate} puzzleNo={puzzle.id} />
 			</div>
 
 			{shouldShowTransitionOverlay && (

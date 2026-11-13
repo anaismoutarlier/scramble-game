@@ -6,6 +6,7 @@ import { alphabet } from "@/data/alphabet";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 import { mockPuzzleValidWordSet } from "@/data/mockPuzzleValidWords";
 import type { Axis, BoardTemplate, CellId, GameProgress, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/hooks/types";
+import { toast } from "@/components/ui/toast";
 
 type StoredProgress = Omit<GameProgress, "currentAttempt">;
 
@@ -16,18 +17,13 @@ type PlacementValidation = {
 	orderedTiles: OngoingAttemptTile[];
 };
 
-type SubmissionFeedback = {
-	type: "none" | "valid" | "invalid";
-	message: string;
-};
-
 type GameContextValue = {
 	puzzle: typeof mockPuzzleDefinition;
 	progress: GameProgress;
+	currentStreak: number;
 	isClickPlacementEnabled: boolean;
 	selectedRackTileId: RackTileId | null;
 	placementValidation: PlacementValidation;
-	submissionFeedback: SubmissionFeedback;
 	activeDragLetter: string | null;
 	isRackTileInUse: (rackTileId: RackTileId) => boolean;
 	getPlacedTileByCellId: (cellId: CellId) => OngoingAttemptTile | undefined;
@@ -41,11 +37,13 @@ type GameContextValue = {
 const GameContext = createContext<GameContextValue | null>(null);
 
 const STORAGE_KEY_PREFIX = "scramblegame:progress:";
+const STREAK_STORAGE_KEY = "scramblegame:current-streak";
 const TILE_DRAG_PREFIX = "tile:";
 const CELL_DROP_PREFIX = "cell:";
 const TRAY_DROP_ID = "tray-dropzone";
 const RACK_TILE_DND_TYPE = "rack-tile";
 const MAX_ATTEMPTS = 5;
+const SLAM_BONUS_POINTS = 10;
 const ENABLE_CLICK_PLACEMENT = true;
 
 const getStorageKey = (puzzleId: string) => `${STORAGE_KEY_PREFIX}${puzzleId}`;
@@ -63,7 +61,40 @@ const createDefaultStoredProgress = (puzzleId: string, puzzleDate: string): Stor
 	};
 };
 
-const calculateDraftScore = (placedTiles: OngoingAttemptTile[], board: BoardTemplate): ScoreBreakdown => {
+type StreakStorage = {
+	currentStreak: number;
+	lastCompletedPuzzleId?: string;
+};
+
+const createDefaultStreakStorage = (): StreakStorage => ({
+	currentStreak: 0,
+	lastCompletedPuzzleId: undefined,
+});
+
+const normalizeStreakStorage = (parsed: Partial<StreakStorage>): StreakStorage => ({
+	currentStreak: typeof parsed.currentStreak === "number" && parsed.currentStreak >= 0 ? parsed.currentStreak : 0,
+	lastCompletedPuzzleId: typeof parsed.lastCompletedPuzzleId === "string" ? parsed.lastCompletedPuzzleId : undefined,
+});
+
+const normalizeStoredProgress = (parsed: Partial<StoredProgress>, fallback: StoredProgress): StoredProgress => ({
+	...fallback,
+	...parsed,
+	attempts: Array.isArray(parsed.attempts) ? parsed.attempts : fallback.attempts,
+	attemptsUsed: typeof parsed.attemptsUsed === "number" ? parsed.attemptsUsed : fallback.attemptsUsed,
+	totalScore: typeof parsed.totalScore === "number" ? parsed.totalScore : fallback.totalScore,
+	status: parsed.status === "completed" ? "completed" : "in_progress",
+	startedAt: typeof parsed.startedAt === "string" ? parsed.startedAt : fallback.startedAt,
+	updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : fallback.updatedAt,
+	completedAt: typeof parsed.completedAt === "string" ? parsed.completedAt : undefined,
+});
+
+const calculateDraftScore = (
+	placedTiles: OngoingAttemptTile[],
+	board: BoardTemplate,
+	options?: {
+		applySlamBonus?: boolean;
+	},
+): ScoreBreakdown => {
 	let baseLetterScore = 0;
 	let wordMultiplierTotal: 1 | 2 | 3 | 6 | 9 = 1;
 	const letterMultiplierHits: ScoreBreakdown["letterMultiplierHits"] = [];
@@ -98,15 +129,17 @@ const calculateDraftScore = (placedTiles: OngoingAttemptTile[], board: BoardTemp
 		}
 	}
 
-	const total = baseLetterScore * wordMultiplierTotal;
+	const slamBonusApplied = Boolean(options?.applySlamBonus);
+	const slamBonusPoints = slamBonusApplied ? SLAM_BONUS_POINTS : 0;
+	const total = baseLetterScore * wordMultiplierTotal + slamBonusPoints;
 
 	return {
 		baseLetterScore,
 		letterMultiplierHits,
 		wordMultiplierHits,
 		wordMultiplierTotal,
-		slamBonusApplied: false,
-		slamBonusPoints: 0,
+		slamBonusApplied,
+		slamBonusPoints,
 		total,
 	};
 };
@@ -183,26 +216,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		try {
 			const parsed = JSON.parse(raw) as Partial<StoredProgress>;
 			if (parsed.puzzleId !== puzzle.id) return fallback;
-
-			return {
-				...fallback,
-				...parsed,
-				attempts: Array.isArray(parsed.attempts) ? parsed.attempts : fallback.attempts,
-				attemptsUsed: typeof parsed.attemptsUsed === "number" ? parsed.attemptsUsed : fallback.attemptsUsed,
-				totalScore: typeof parsed.totalScore === "number" ? parsed.totalScore : fallback.totalScore,
-				status: parsed.status === "completed" ? "completed" : "in_progress",
-				startedAt: typeof parsed.startedAt === "string" ? parsed.startedAt : fallback.startedAt,
-				updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : fallback.updatedAt,
-				completedAt: typeof parsed.completedAt === "string" ? parsed.completedAt : undefined,
-			};
+			return normalizeStoredProgress(parsed, fallback);
 		} catch {
 			window.localStorage.removeItem(storageKey);
 			return fallback;
 		}
 	});
+	const [streakStorage, setStreakStorage] = useState<StreakStorage>(() => {
+		const fallback = createDefaultStreakStorage();
+		if (typeof window === "undefined") return fallback;
+
+		const raw = window.localStorage.getItem(STREAK_STORAGE_KEY);
+		if (!raw) return fallback;
+
+		try {
+			const parsed = JSON.parse(raw) as Partial<StreakStorage>;
+			return normalizeStreakStorage(parsed);
+		} catch {
+			window.localStorage.removeItem(STREAK_STORAGE_KEY);
+			return fallback;
+		}
+	});
 	const [placedTiles, setPlacedTiles] = useState<OngoingAttemptTile[]>([]);
 	const [selectedRackTileId, setSelectedRackTileId] = useState<RackTileId | null>(null);
-	const [submissionFeedback, setSubmissionFeedback] = useState<SubmissionFeedback>({ type: "none", message: "" });
 	const [activeDragLetter, setActiveDragLetter] = useState<string | null>(null);
 	const suppressClickRef = useRef(false);
 
@@ -210,6 +246,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (typeof window === "undefined") return;
 		window.localStorage.setItem(storageKey, JSON.stringify(savedProgress));
 	}, [savedProgress, storageKey]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		window.localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(streakStorage));
+	}, [streakStorage]);
 
 	const placeTileOnCell = useCallback(
 		(rackTileId: RackTileId, cellId: CellId) => {
@@ -221,14 +262,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				const withoutTarget = withoutSource.filter(tile => tile.cellId !== cellId);
 				return [...withoutTarget, { rackTileId, cellId, letter: tileFromRack.letter }];
 			});
-			setSubmissionFeedback({ type: "none", message: "" });
 		},
 		[puzzle.board.cellsById, puzzle.rackTiles],
 	);
 
 	const removePlacedTile = useCallback((rackTileId: RackTileId) => {
 		setPlacedTiles(prev => prev.filter(tile => tile.rackTileId !== rackTileId));
-		setSubmissionFeedback({ type: "none", message: "" });
 	}, []);
 
 	const getPlacedTileByCellId = useCallback((cellId: CellId) => placedTiles.find(tile => tile.cellId === cellId), [placedTiles]);
@@ -262,16 +301,44 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const placementValidation = useMemo(() => getPlacementValidation(placedTiles, puzzle.board), [placedTiles, puzzle.board]);
-	const currentAttemptScore = useMemo(() => calculateDraftScore(placedTiles, puzzle.board), [placedTiles, puzzle.board]);
+	const shouldApplySlamBonus = placementValidation.isSubmittable && placementValidation.orderedTiles.length === puzzle.rackTiles.length;
+	const currentAttemptScore = useMemo(
+		() =>
+			calculateDraftScore(placedTiles, puzzle.board, {
+				applySlamBonus: shouldApplySlamBonus,
+			}),
+		[placedTiles, puzzle.board, shouldApplySlamBonus],
+	);
 
 	const onSubmitCurrentAttempt = useCallback(() => {
 		if (!placementValidation.isSubmittable || !placementValidation.axis) return;
 		const placementAxis: Axis = placementValidation.axis;
 
 		const candidateWord = placementValidation.candidateWord;
+		const attemptsLeft = Math.max(0, MAX_ATTEMPTS - savedProgress.attemptsUsed);
+		const prettyWord = candidateWord.toUpperCase();
+
+		const wasAlreadyPlayed = savedProgress.attempts.some(attempt => attempt.word === candidateWord);
+		if (wasAlreadyPlayed) {
+			toast.add({
+				type: "warning",
+				title: "Word already played",
+				description: (
+					<span>
+						You&apos;ve already played <strong>{prettyWord}</strong>. Try a new word.
+					</span>
+				),
+			});
+			return;
+		}
+
 		const isValidWord = mockPuzzleValidWordSet.has(candidateWord);
 		if (!isValidWord) {
-			setSubmissionFeedback({ type: "invalid", message: `"${candidateWord.toUpperCase()}" is not in the valid sub-word list.` });
+			toast.add({
+				type: "error",
+				title: "That one doesn't count",
+				description: `According to my records, that isn’t a word. 🤔 But you still have ${attemptsLeft} attempts left! Try again.`,
+			});
 			return;
 		}
 
@@ -310,15 +377,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				],
 			};
 		});
+		const willCompletePuzzle = savedProgress.attemptsUsed + 1 >= MAX_ATTEMPTS;
+		if (willCompletePuzzle) {
+			setStreakStorage(prev => {
+				if (prev.lastCompletedPuzzleId === savedProgress.puzzleId) {
+					return prev;
+				}
+
+				return {
+					currentStreak: prev.currentStreak + 1,
+					lastCompletedPuzzleId: savedProgress.puzzleId,
+				};
+			});
+		}
 
 		setPlacedTiles([]);
 		setSelectedRackTileId(null);
-		setSubmissionFeedback({ type: "valid", message: `Accepted "${candidateWord.toUpperCase()}".` });
-	}, [currentAttemptScore, placementValidation, savedProgress.attemptsUsed]);
+		const attemptsLeftAfterSubmit = Math.max(0, MAX_ATTEMPTS - (savedProgress.attemptsUsed + 1));
+		toast.add({
+			type: "success",
+			title: "Word accepted",
+			description:
+				attemptsLeftAfterSubmit > 0
+					? `Great job! You got ${currentAttemptScore.total} points, and you still have ${attemptsLeftAfterSubmit} ${attemptsLeftAfterSubmit === 1 ? "attempt" : "attempts"} left!`
+					: `Great job! You got ${currentAttemptScore.total} points. That was your final attempt.`,
+		});
+	}, [currentAttemptScore, placementValidation, savedProgress.attempts, savedProgress.attemptsUsed, savedProgress.puzzleId]);
 
 	const onDragStart = useCallback(
 		(event: DragStartEvent) => {
-			console.log("start", event);
 			const sourceRackTileId = parseRackTileId(event.operation.source?.id);
 			if (sourceRackTileId) {
 				const placedTile = placedTiles.find(tile => tile.rackTileId === sourceRackTileId);
@@ -333,7 +420,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const onDragEnd = useCallback(
 		(event: DragEndEvent) => {
-			console.log("end", event);
 			setActiveDragLetter(null);
 			if (event.canceled) {
 				setTimeout(() => {
@@ -400,10 +486,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		() => ({
 			puzzle,
 			progress,
+			currentStreak: streakStorage.currentStreak,
 			isClickPlacementEnabled: ENABLE_CLICK_PLACEMENT,
 			selectedRackTileId,
 			placementValidation,
-			submissionFeedback,
 			activeDragLetter,
 			isRackTileInUse,
 			getPlacedTileByCellId,
@@ -415,6 +501,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}),
 		[
 			activeDragLetter,
+			streakStorage.currentStreak,
 			getPlacedTileByCellId,
 			isRackTileInUse,
 			onBoardCellClick,
@@ -426,7 +513,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			progress,
 			puzzle,
 			selectedRackTileId,
-			submissionFeedback,
 		],
 	);
 

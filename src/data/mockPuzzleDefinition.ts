@@ -1,7 +1,7 @@
 import type { PuzzleDefinition } from "@/hooks/types";
 
 export const mockPuzzleDefinition: PuzzleDefinition = {
-	id: "2026-11-11",
+	id: "142",
 	date: "2026-11-11",
 	rackTiles: [
 		{ id: "rack-0", letter: "z" },
