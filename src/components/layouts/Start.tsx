@@ -7,25 +7,21 @@ import { Wordmark } from "../wordmark";
 
 type StartProps = {
 	onPlay: () => void;
-	isTransitionRunning?: boolean;
 	onWordmarkReady?: (element: HTMLDivElement | null) => void;
 };
 
-export function Start({ onPlay, isTransitionRunning = false, onWordmarkReady }: StartProps) {
+export function Start({ onPlay, onWordmarkReady }: StartProps) {
 	const { puzzle } = useGameContext();
 	const prettyDate = moment(puzzle.date).format("MMMM Do, YYYY").toUpperCase();
 
 	return (
-		<main className="w-full flex justify-center min-h-[calc(100vh-100px)] items-start px-6 lg:px-10 py-8 sm:py-10 md:py-12">
+		<main className="w-full flex justify-center min-h-[calc(100vh-100px)] items-start px-6 lg:px-10 pb-8 sm:pb-10 md:pb-12">
 			<section className="w-full max-w-3xl flex flex-col items-center gap-6 sm:gap-8 text-center mt-24 sm:mt-28 md:mt-32">
 				<div className="inline-flex flex-col items-center gap-0.5">
-					<div
-						ref={onWordmarkReady}
-						className={cn("transition-opacity duration-150", isTransitionRunning && "opacity-0 pointer-events-none")}
-					>
+					<div ref={onWordmarkReady} className={cn("transition-opacity duration-150")}>
 						<Wordmark size="hero" />
 					</div>
-					<div className={cn("text-light text-[11px] font-normal font-sans transition-opacity duration-150", isTransitionRunning && "opacity-0")}>
+					<div className={cn("text-light text-[11px] font-normal font-sans transition-opacity duration-150")}>
 						A daily word puzzle
 					</div>
 				</div>
@@ -44,9 +40,7 @@ export function Start({ onPlay, isTransitionRunning = false, onWordmarkReady }: 
 					<Button variant="outlined" icon={Info}>
 						How to Play
 					</Button>
-					<Button onClick={onPlay} disabled={isTransitionRunning}>
-						Play
-					</Button>
+					<Button onClick={onPlay}>Play</Button>
 				</div>
 
 				<div className="flex flex-col items-center gap-0.5">

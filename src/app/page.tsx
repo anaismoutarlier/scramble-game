@@ -13,6 +13,8 @@ import { Wordmark } from "@/components/wordmark";
 import { cn } from "@/lib/cn";
 
 const START_GAME_STAGE_DURATION_MS = 800;
+const GAME_INTERFACE_ENTER_DURATION_MS = 450;
+const HEADER_CONTENT_REVEAL_DELAY_MS = 600;
 const START_GAME_STAGE_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 type RectSnapshot = {
@@ -35,17 +37,15 @@ function GameDataLoadingScreen() {
 
 function ActiveLayout({
 	onPlay,
-	isTransitionRunning,
 	onStartWordmarkReady,
 }: {
 	onPlay: () => void;
-	isTransitionRunning: boolean;
 	onStartWordmarkReady: (element: HTMLDivElement | null) => void;
 }) {
 	const { progress } = useGameContext();
 
 	if (progress.status === "unstarted") {
-		return <Start onPlay={onPlay} isTransitionRunning={isTransitionRunning} onWordmarkReady={onStartWordmarkReady} />;
+		return <Start onPlay={onPlay} onWordmarkReady={onStartWordmarkReady} />;
 	}
 
 	return progress.status === "completed" ? <ResultsLayout /> : <GameLayout />;
@@ -54,6 +54,8 @@ function ActiveLayout({
 function AppShell() {
 	const { currentStreak, progress, onStartPuzzle } = useGameContext();
 	const [isTransitionRunning, setIsTransitionRunning] = useState(false);
+	const [isGameEntering, setIsGameEntering] = useState(false);
+	const [isHeaderContentReady, setIsHeaderContentReady] = useState(true);
 	const [hasAnimationStarted, setHasAnimationStarted] = useState(false);
 	const [fromRect, setFromRect] = useState<RectSnapshot | null>(null);
 	const [toRect, setToRect] = useState<RectSnapshot | null>(null);
@@ -62,7 +64,10 @@ function AppShell() {
 	const desktopWordmarkRef = useRef<HTMLDivElement | null>(null);
 	const mobileWordmarkRef = useRef<HTMLDivElement | null>(null);
 	const transitionTimerRef = useRef<number | null>(null);
+	const gameEnterTimerRef = useRef<number | null>(null);
+	const headerRevealTimerRef = useRef<number | null>(null);
 	const transitionAnimationFrameRef = useRef<number | null>(null);
+	const hasPlaySequenceStartedRef = useRef(false);
 
 	const setStartWordmarkRef = useCallback((element: HTMLDivElement | null) => {
 		startWordmarkRef.current = element;
@@ -101,22 +106,38 @@ function AppShell() {
 		setHasAnimationStarted(false);
 		setFromRect(null);
 		setToRect(null);
-		onStartPuzzle();
-	}, [onStartPuzzle]);
+	}, []);
 
 	const onPlay = useCallback(() => {
+		if (hasPlaySequenceStartedRef.current) return;
+		hasPlaySequenceStartedRef.current = true;
+
 		const sourceRect = getRectSnapshot(startWordmarkRef.current);
 		const targetRect = getHeaderWordmarkTargetRect();
 
 		if (!sourceRect || !targetRect) {
 			onStartPuzzle();
+			setIsHeaderContentReady(false);
+			setIsGameEntering(true);
+			headerRevealTimerRef.current = window.setTimeout(() => {
+				setIsHeaderContentReady(true);
+				headerRevealTimerRef.current = null;
+			}, GAME_INTERFACE_ENTER_DURATION_MS);
+			gameEnterTimerRef.current = window.setTimeout(() => {
+				setIsGameEntering(false);
+				gameEnterTimerRef.current = null;
+				hasPlaySequenceStartedRef.current = false;
+			}, GAME_INTERFACE_ENTER_DURATION_MS);
 			return;
 		}
 
 		setFromRect(sourceRect);
 		setToRect(targetRect);
 		setIsTransitionRunning(true);
+		setIsGameEntering(true);
+		setIsHeaderContentReady(false);
 		setHasAnimationStarted(false);
+		onStartPuzzle();
 
 		if (transitionAnimationFrameRef.current !== null) {
 			window.cancelAnimationFrame(transitionAnimationFrameRef.current);
@@ -132,6 +153,23 @@ function AppShell() {
 			completeStartTransition();
 			transitionTimerRef.current = null;
 		}, START_GAME_STAGE_DURATION_MS);
+
+		if (headerRevealTimerRef.current !== null) {
+			window.clearTimeout(headerRevealTimerRef.current);
+		}
+		headerRevealTimerRef.current = window.setTimeout(() => {
+			setIsHeaderContentReady(true);
+			headerRevealTimerRef.current = null;
+		}, HEADER_CONTENT_REVEAL_DELAY_MS);
+
+		if (gameEnterTimerRef.current !== null) {
+			window.clearTimeout(gameEnterTimerRef.current);
+		}
+		gameEnterTimerRef.current = window.setTimeout(() => {
+			setIsGameEntering(false);
+			gameEnterTimerRef.current = null;
+			hasPlaySequenceStartedRef.current = false;
+		}, GAME_INTERFACE_ENTER_DURATION_MS);
 	}, [completeStartTransition, getHeaderWordmarkTargetRect, getRectSnapshot, onStartPuzzle]);
 
 	useEffect(() => {
@@ -142,15 +180,18 @@ function AppShell() {
 			if (transitionTimerRef.current !== null) {
 				window.clearTimeout(transitionTimerRef.current);
 			}
+			if (gameEnterTimerRef.current !== null) {
+				window.clearTimeout(gameEnterTimerRef.current);
+			}
+			if (headerRevealTimerRef.current !== null) {
+				window.clearTimeout(headerRevealTimerRef.current);
+			}
 		};
 	}, []);
 
-	const isShowingStartScreen = progress.status === "unstarted" || isTransitionRunning;
-	const headerStage: "start" | "start-game" | "game" = isShowingStartScreen
-		? isTransitionRunning
-			? "start-game"
-			: "start"
-		: "game";
+	const shouldShowStartScreen = progress.status === "unstarted";
+	const headerStage: "start" | "start-game" | "game" =
+		progress.status === "unstarted" ? "start" : isGameEntering || !isHeaderContentReady ? "start-game" : "game";
 
 	const flipStyle = useMemo(() => {
 		if (!fromRect || !toRect) return undefined;
@@ -192,14 +233,22 @@ function AppShell() {
 				onDesktopWordmarkReady={setDesktopWordmarkRef}
 				onMobileWordmarkReady={setMobileWordmarkRef}
 			/>
-			{isShowingStartScreen ? (
-				<Start onPlay={onPlay} isTransitionRunning={isTransitionRunning} onWordmarkReady={setStartWordmarkRef} />
+			{shouldShowStartScreen ? (
+				<Start onPlay={onPlay} onWordmarkReady={setStartWordmarkRef} />
 			) : (
-				<ActiveLayout
-					onPlay={onPlay}
-					isTransitionRunning={isTransitionRunning}
-					onStartWordmarkReady={setStartWordmarkRef}
-				/>
+				<div
+					className={cn(
+						"transition-all will-change-transform",
+						isGameEntering
+							? "duration-[450ms] opacity-0 translate-y-10 sm:translate-y-14"
+							: "duration-300 opacity-100 translate-y-0",
+					)}
+					style={{
+						transitionTimingFunction: START_GAME_STAGE_EASING,
+					}}
+				>
+					<ActiveLayout onPlay={onPlay} onStartWordmarkReady={setStartWordmarkRef} />
+				</div>
 			)}
 			<Footer />
 
