@@ -2,7 +2,7 @@ import { BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from
 import { Redis } from "@upstash/redis";
 import moment from "moment";
 import { randomUUID } from "crypto";
-import { getRandomInt } from "./utils";
+import { getRandomInt } from "../../src/lib/utils";
 import { generateRackLetters } from "./generateRackLetters";
 
 const redis = Redis.fromEnv();

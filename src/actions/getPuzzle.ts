@@ -1,7 +1,7 @@
 "use server";
 import { Redis } from "@upstash/redis";
 import moment from "moment";
-import type { PuzzleEnvelope } from "@/lib/generatePuzzle";
+import type { PuzzleEnvelope } from "../../api/lib/generatePuzzle";
 
 const redis = Redis.fromEnv();
 
