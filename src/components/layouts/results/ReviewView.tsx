@@ -4,8 +4,7 @@ import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } fro
 import { ChevronLeft, ChevronRight, MoveLeft } from "lucide-react";
 import { useGameContext } from "@/context/GameContext";
 import { ReviewBoard } from "./components/ReviewBoard";
-import { calculateTopScoringWords } from "../../../../api/_lib/bestPossibleWords";
-import { mockPuzzleValidWords } from "@/data/mockPuzzleValidWords";
+import { TopScoringWord } from "@/context/types";
 
 type ReviewProps = {
 	toggleView: (v: "results" | "review") => void;
@@ -29,7 +28,7 @@ export function Review({ toggleView }: ReviewProps) {
 		[progress.attempts],
 	);
 
-	const bestWords = useMemo(() => calculateTopScoringWords(puzzle, mockPuzzleValidWords, { limit: 10 }), [puzzle]);
+	const bestWords: TopScoringWord[] = useMemo(() => [], []);
 
 	const updateScrollButtons = useCallback(
 		(
