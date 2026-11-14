@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { getRandomInt } from "./utils.js";
 import { generateRackLetters } from "./generateRackLetters.js";
 import { calculateTopScoringWords } from "./bestPossibleWords.js";
+
 const redis = Redis.fromEnv();
 
 const boardTemplate: PuzzleDefinition["board"] = {
