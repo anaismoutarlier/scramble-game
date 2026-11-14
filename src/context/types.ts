@@ -1,4 +1,14 @@
-import type { TopScoringWord } from "../../api/_lib/bestPossibleWords";
+export type TopScoringWordPlacement = {
+	direction: Axis;
+	placementCellIds: string[];
+	score: number;
+};
+
+export type TopScoringWord = {
+	word: string;
+	score: number;
+	placements: TopScoringWordPlacement[];
+};
 
 export type BonusTile = "dl" | "tl" | "dw" | "tw";
 export type Axis = "horizontal" | "vertical";

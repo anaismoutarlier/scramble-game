@@ -6,9 +6,8 @@ import { io } from "next/cache";
 import { Share2 } from "lucide-react";
 import { Button } from "../../button";
 import { cn } from "@/lib/cn";
-import { type TopScoringWord } from "../../../../api/_lib/bestPossibleWords";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
-import { GameProgress, PuzzleDefinition } from "@/context/types";
+import type { TopScoringWord, GameProgress, PuzzleDefinition } from "@/context/types";
 
 const MAX_ATTEMPTS = 5;
 

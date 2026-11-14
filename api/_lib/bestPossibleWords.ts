@@ -1,17 +1,5 @@
 import { alphabet } from "./alphabet.js";
-import type { Axis, PuzzleDefinition } from "../../src/context/types";
-
-export type TopScoringWordPlacement = {
-	direction: Axis;
-	placementCellIds: string[];
-	score: number;
-};
-
-export type TopScoringWord = {
-	word: string;
-	score: number;
-	placements: TopScoringWordPlacement[];
-};
+import type { TopScoringWord, TopScoringWordPlacement, PuzzleDefinition } from "../../src/context/types";
 
 const SLAM_BONUS_POINTS = 45;
 
