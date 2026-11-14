@@ -1,4 +1,4 @@
-import type { PuzzleEnvelope, BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "@/context/types";
+import type { PuzzleEnvelope, BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "../../src/context/types";
 import { Redis } from "@upstash/redis";
 import moment from "moment";
 import { randomUUID } from "crypto";

@@ -6,8 +6,7 @@ import { io } from "next/cache";
 import { Share2 } from "lucide-react";
 import { Button } from "../../button";
 import { cn } from "@/lib/cn";
-import { mockPuzzleValidWords } from "@/data/mockPuzzleValidWords";
-import { calculateTopScoringWords } from "../../../../api/_lib/bestPossibleWords";
+import { type TopScoringWord } from "../../../../api/_lib/bestPossibleWords";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
 import { GameProgress, PuzzleDefinition } from "@/context/types";
 
@@ -75,7 +74,7 @@ export const ResultsMainContent = ({
 	progress: GameProgress;
 	toggleView: (v: "results" | "review") => void;
 }) => {
-	const bestPossibleWords = useMemo(() => calculateTopScoringWords(puzzle, mockPuzzleValidWords), [puzzle]);
+	const bestPossibleWords: TopScoringWord[] = useMemo(() => [], []);
 	const bestPossibleScore = useMemo(
 		() => bestPossibleWords.reduce((total, wordEntry) => total + wordEntry.score, 0),
 		[bestPossibleWords],
