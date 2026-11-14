@@ -1,7 +1,6 @@
 import { alphabet } from "./alphabet.js";
 import type { TopScoringWord, TopScoringWordPlacement, PuzzleDefinition } from "../../src/context/types";
-
-const SLAM_BONUS_POINTS = 45;
+import { SLAM_BONUS_POINTS } from "../../src/game-config/constants.js";
 
 function canBuildWordFromRack(word: string, rackLetters: readonly string[]): boolean {
 	const availableCounts = new Map<string, number>();

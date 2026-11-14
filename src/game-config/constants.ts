@@ -1,0 +1,9 @@
+export const MAX_ATTEMPTS = 5;
+export const SLAM_BONUS_POINTS = 45;
+export const PROGRESS_STORAGE_KEY = "scramblegame:progress";
+export const STREAK_STORAGE_KEY = "scramblegame:current-streak";
+export const TILE_DRAG_PREFIX = "tile:";
+export const CELL_DROP_PREFIX = "cell:";
+export const TRAY_DROP_ID = "tray-dropzone";
+export const RACK_TILE_DND_TYPE = "rack-tile";
+export const ENABLE_CLICK_PLACEMENT = true;

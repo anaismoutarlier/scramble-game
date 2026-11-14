@@ -9,8 +9,7 @@ import { cn } from "@/lib/cn";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
 import type { TopScoringWord, GameProgress, PuzzleDefinition } from "@/context/types";
 import { toast } from "@/components/ui/toast";
-
-const MAX_ATTEMPTS = 5;
+import { MAX_ATTEMPTS } from "@/game-config/constants";
 
 function getCountdownToNextMidnight() {
 	const now = moment();
@@ -45,10 +44,12 @@ type ResultWordRowProps = {
 	attemptNumber: number;
 	word?: string;
 	score?: number;
+	isForfeit?: boolean;
 };
 
-function ResultWordRow({ attemptNumber, word, score }: ResultWordRowProps) {
+function ResultWordRow({ attemptNumber, word, score, isForfeit = false }: ResultWordRowProps) {
 	const hasResult = Boolean(word) && typeof score === "number";
+	const statusLabel = hasResult ? word?.toUpperCase() : isForfeit ? "Forfeit" : "Waiting…";
 
 	return (
 		<div className={cn("w-full py-1 sm:py-2 flex items-center justify-between gap-2.5", !hasResult && "opacity-25")}>
@@ -56,7 +57,7 @@ function ResultWordRow({ attemptNumber, word, score }: ResultWordRowProps) {
 				<div className="size-[22px] shrink-0 bg-primary border-2 border-primary rounded-[11px] inline-flex items-center justify-center">
 					<span className="text-dark text-[11px] font-bold font-sans leading-none">{attemptNumber}</span>
 				</div>
-				<div className="text-light text-base font-bold font-sans truncate">{hasResult ? word?.toUpperCase() : "Waiting…"}</div>
+				<div className="text-light text-base font-bold font-sans truncate">{statusLabel}</div>
 			</div>
 			{typeof score === "number" && (
 				<div className="bg-primary rounded-xl px-2.5 py-1 text-dark text-[13px] leading-none font-bold font-sans">{score} pts</div>
@@ -115,6 +116,7 @@ export const ResultsMainContent = ({
 	const clampedPercent = Math.max(0, Math.min(100, percentOfBestPossible));
 	const pointsShort = Math.max(0, bestPossibleScore - totalScore);
 	const outcomeLabel = getResultOutcomeLabel(clampedPercent);
+	const endedByGiveUp = progress.attemptsUsed < MAX_ATTEMPTS;
 
 	const attempts = useMemo(() => {
 		const orderedAttempts = [...progress.attempts].sort((a, b) => a.attemptNumber - b.attemptNumber);
@@ -125,9 +127,10 @@ export const ResultsMainContent = ({
 				attemptNumber,
 				word: matchingAttempt?.word,
 				score: matchingAttempt?.score.total,
+				isForfeit: !matchingAttempt?.word && endedByGiveUp && attemptNumber > progress.attemptsUsed,
 			};
 		});
-	}, [progress.attempts]);
+	}, [endedByGiveUp, progress.attempts, progress.attemptsUsed]);
 
 	const handleShare = async () => {
 		const shareMessage = generateShareMessage({ percentage: clampedPercent, attempts: attempts, outcomeLabel, puzzleId: puzzle.id });
@@ -211,6 +214,7 @@ export const ResultsMainContent = ({
 								attemptNumber={attempt.attemptNumber}
 								word={attempt.word}
 								score={attempt.score}
+								isForfeit={attempt.isForfeit}
 							/>
 						))}
 					</div>

@@ -36,7 +36,7 @@ export const HOW_TO_PLAY_RULES: HowToPlayRule[] = [
 		order: 3,
 		segments: [
 			{
-				text: "Use your 7 tiles to spell a word and earn points. Each tile can only be used once per word. Careful, each word may only be played once, even if there are multiple valid placements for it on the board.",
+				text: "Use your at least 2 of your 7 tiles to spell a word and earn points. Each tile can only be used once per word. Careful, each word may only be played once, even if there are multiple valid placements for it on the board.",
 			},
 		],
 	},
@@ -53,7 +53,9 @@ export const HOW_TO_PLAY_RULES: HowToPlayRule[] = [
 		segments: [
 			{ text: "You have " },
 			{ text: "5 attempts", emphasis: true },
-			{ text: ". Each attempt adds to your cumulative score. See how high you can get with all five words!" },
+			{
+				text: ". Each attempt adds to your cumulative score. You can give up after your first submission, but any remaining attempts are forfeited and your current streak resets to 0.",
+			},
 		],
 	},
 	{

@@ -2,14 +2,33 @@
 
 import { KeyboardSensor, PointerSensor, DragDropProvider, DragOverlay } from "@dnd-kit/react";
 import { PointerActivationConstraints } from "@dnd-kit/dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Board } from "../board";
 import { LetterTray } from "../letter-tray";
 import AttemptsPanel from "../attempts-panel";
+import { GiveUpDialog } from "./GiveUpDialog";
 import { useGameContext } from "@/context/GameContext";
+import { MAX_ATTEMPTS } from "@/game-config/constants";
 
 export const GameLayout = () => {
-	const { onDragStart, onDragEnd, activeDragLetter } = useGameContext();
+	const { onDragStart, onDragEnd, activeDragLetter, onGiveUpPuzzle, progress } = useGameContext();
+	const [isGiveUpDialogOpen, setIsGiveUpDialogOpen] = useState(false);
+	const [isGivingUp, setIsGivingUp] = useState(false);
+	const attemptsForfeited = Math.max(0, MAX_ATTEMPTS - progress.attemptsUsed);
+	const canGiveUp = progress.status === "in_progress" && progress.attemptsUsed > 0;
+
+	const handleOpenGiveUpDialog = () => {
+		if (!canGiveUp) return;
+		setIsGiveUpDialogOpen(true);
+	};
+
+	const handleConfirmGiveUp = () => {
+		setIsGivingUp(true);
+		onGiveUpPuzzle();
+		setIsGiveUpDialogOpen(false);
+		setIsGivingUp(false);
+	};
+
 	const sensors = useMemo(
 		() => [
 			PointerSensor.configure({
@@ -27,14 +46,14 @@ export const GameLayout = () => {
 					<div className="w-full max-w-100 flex flex-col order-1">
 						<LetterTray />
 						<div className="hidden md:block">
-							<AttemptsPanel />
+							<AttemptsPanel onGiveUp={handleOpenGiveUpDialog} isBusy={isGivingUp} />
 						</div>
 					</div>
 					<div className="order-2">
 						<Board />
 					</div>
 					<div className="w-full max-w-lg order-3 md:hidden">
-						<AttemptsPanel />
+						<AttemptsPanel onGiveUp={handleOpenGiveUpDialog} isBusy={isGivingUp} />
 					</div>
 				</div>
 			</main>
@@ -45,6 +64,14 @@ export const GameLayout = () => {
 					</div>
 				) : null}
 			</DragOverlay>
+			<GiveUpDialog
+				open={isGiveUpDialogOpen}
+				isGivingUp={isGivingUp}
+				attemptsForfeited={attemptsForfeited}
+				onOpenChange={setIsGiveUpDialogOpen}
+				onCancel={() => setIsGiveUpDialogOpen(false)}
+				onConfirm={handleConfirmGiveUp}
+			/>
 		</DragDropProvider>
 	);
 };

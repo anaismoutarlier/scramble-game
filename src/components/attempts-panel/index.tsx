@@ -1,8 +1,7 @@
 import { Button } from "../button";
 import { cn } from "@/lib/cn";
 import { useGameContext } from "@/context/GameContext";
-
-const MAX_ATTEMPTS = 5;
+import { MAX_ATTEMPTS } from "@/game-config/constants";
 
 type AttemptsPanelProps = {
 	onGiveUp?: () => void;
@@ -13,6 +12,7 @@ type AttemptsPanelProps = {
 export default function AttemptsPanel({ onGiveUp, isBusy = false, className }: AttemptsPanelProps) {
 	const { puzzle, progress } = useGameContext();
 	const attemptsRemaining = Math.max(0, MAX_ATTEMPTS - progress.attemptsUsed);
+	const canGiveUp = progress.status === "in_progress" && progress.attemptsUsed > 0;
 	const attemptSlots = Array.from({ length: MAX_ATTEMPTS }, (_, index) => {
 		const attemptNumber = index + 1;
 		const attempt = progress.attempts.find(item => item.attemptNumber === attemptNumber);
@@ -46,8 +46,8 @@ export default function AttemptsPanel({ onGiveUp, isBusy = false, className }: A
 				<div className="text-light text-sm sm:text-base md:text-lg leading-none font-bold font-sans">{progress.totalScore} pts</div>
 			</div>
 
-			{progress.status === "in_progress" && (
-				<Button variant="outlined" onClick={onGiveUp} disabled={isBusy}>
+			{progress.status === "in_progress" && canGiveUp && (
+				<Button variant="outlined" onClick={onGiveUp} disabled={isBusy || !canGiveUp}>
 					Give Up
 				</Button>
 			)}

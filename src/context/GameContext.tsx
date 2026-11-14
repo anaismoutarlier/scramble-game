@@ -17,6 +17,17 @@ import type {
 import { toast } from "@/components/ui/toast";
 import { v4 as randomUUID } from "uuid";
 import { checkWord } from "@/actions/checkWord";
+import {
+	MAX_ATTEMPTS,
+	PROGRESS_STORAGE_KEY,
+	SLAM_BONUS_POINTS,
+	STREAK_STORAGE_KEY,
+	TILE_DRAG_PREFIX,
+	CELL_DROP_PREFIX,
+	TRAY_DROP_ID,
+	RACK_TILE_DND_TYPE,
+	ENABLE_CLICK_PLACEMENT,
+} from "@/game-config/constants";
 
 type StoredProgress = Omit<GameProgress, "currentAttempt">;
 
@@ -32,6 +43,7 @@ type GameContextValue = {
 	progress: GameProgress;
 	currentStreak: number;
 	onStartPuzzle: () => void;
+	onGiveUpPuzzle: () => void;
 	isClickPlacementEnabled: boolean;
 	selectedRackTileId: RackTileId | null;
 	placementValidation: PlacementValidation;
@@ -46,16 +58,6 @@ type GameContextValue = {
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
-
-const PROGRESS_STORAGE_KEY = "scramblegame:progress";
-const STREAK_STORAGE_KEY = "scramblegame:current-streak";
-const TILE_DRAG_PREFIX = "tile:";
-const CELL_DROP_PREFIX = "cell:";
-const TRAY_DROP_ID = "tray-dropzone";
-const RACK_TILE_DND_TYPE = "rack-tile";
-const MAX_ATTEMPTS = 5;
-const SLAM_BONUS_POINTS = 45;
-const ENABLE_CLICK_PLACEMENT = true;
 
 const createDefaultStoredProgress = (puzzleId: number, puzzleDate: string): StoredProgress => {
 	const seededTimestamp = `${puzzleDate}T00:00:00.000Z`;
@@ -432,6 +434,8 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 	);
 
 	const onSubmitCurrentAttempt = useCallback(async () => {
+		if (savedProgress.status !== "in_progress") return;
+		if (savedProgress.attemptsUsed >= MAX_ATTEMPTS) return;
 		if (!placementValidation.isSubmittable || !placementValidation.axis) return;
 		const placementAxis: Axis = placementValidation.axis;
 
@@ -524,7 +528,58 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 					? `Great job! You got ${currentAttemptScore.total} points, and you still have ${attemptsLeftAfterSubmit} ${attemptsLeftAfterSubmit === 1 ? "attempt" : "attempts"} left!`
 					: `Great job! You got ${currentAttemptScore.total} points. That was your final attempt.`,
 		});
-	}, [currentAttemptScore, placementValidation, savedProgress.attempts, savedProgress.attemptsUsed, savedProgress.puzzleId]);
+	}, [
+		currentAttemptScore,
+		placementValidation,
+		savedProgress.attempts,
+		savedProgress.attemptsUsed,
+		savedProgress.puzzleId,
+		savedProgress.status,
+	]);
+
+	const onGiveUpPuzzle = useCallback(() => {
+		if (savedProgress.status !== "in_progress") return;
+		if (savedProgress.attemptsUsed < 1) {
+			toast.add({
+				type: "warning",
+				title: "Play at least one word first",
+				description: "Submit at least one word before giving up.",
+			});
+			return;
+		}
+
+		const now = new Date().toISOString();
+		const attemptsForfeited = Math.max(0, MAX_ATTEMPTS - savedProgress.attemptsUsed);
+
+		setSavedProgress(prev => {
+			if (prev.status !== "in_progress") return prev;
+			if (prev.attemptsUsed < 1) return prev;
+
+			return {
+				...prev,
+				status: "completed",
+				updatedAt: now,
+				completedAt: now,
+			};
+		});
+		setStreakStorage(prev => ({
+			...prev,
+			currentStreak: 0,
+		}));
+
+		setPlacedTiles([]);
+		setSelectedRackTileId(null);
+		setActiveDragLetter(null);
+		suppressClickRef.current = false;
+
+		toast.add({
+			type: "warning",
+			title: "You gave up",
+			description: `You forfeited ${attemptsForfeited} remaining ${
+				attemptsForfeited === 1 ? "attempt" : "attempts"
+			}. Your current streak is now 0.`,
+		});
+	}, [savedProgress.attemptsUsed, savedProgress.status]);
 
 	const onStartPuzzle = useCallback(() => {
 		setSavedProgress(prev => {
@@ -623,6 +678,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			progress,
 			currentStreak: streakStorage.currentStreak,
 			onStartPuzzle,
+			onGiveUpPuzzle,
 			isClickPlacementEnabled: ENABLE_CLICK_PLACEMENT,
 			selectedRackTileId,
 			placementValidation,
@@ -644,6 +700,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			onDragEnd,
 			onDragStart,
 			onRackTileClick,
+			onGiveUpPuzzle,
 			onStartPuzzle,
 			onSubmitCurrentAttempt,
 			placementValidation,
