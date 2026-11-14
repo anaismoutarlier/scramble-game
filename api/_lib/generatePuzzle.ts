@@ -95,7 +95,6 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 
 export const generatePuzzle = async () => {
 	try {
-		await redis.del("puzzle:1", "puzzles:all", "racks:all");
 		const { letters, dictionary } = await generateRackLetters();
 		console.log("Generated rack letters: ", letters);
 		if (!letters || !dictionary?.length) return;
