@@ -1,6 +1,5 @@
-import { alphabet } from "@/data/alphabet";
-import type { Axis } from "@/context/types";
-import type { PuzzleDefinition } from "@/context/types";
+import { alphabet } from "../../src/data/alphabet.js";
+import type { Axis, PuzzleDefinition } from "../../src/context/types";
 
 export type TopScoringWordPlacement = {
 	direction: Axis;

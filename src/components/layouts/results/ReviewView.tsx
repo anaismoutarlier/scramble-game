@@ -4,7 +4,7 @@ import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } fro
 import { ChevronLeft, ChevronRight, MoveLeft } from "lucide-react";
 import { useGameContext } from "@/context/GameContext";
 import { ReviewBoard } from "./components/ReviewBoard";
-import { calculateTopScoringWords } from "@/lib/bestPossibleWords";
+import { calculateTopScoringWords } from "../../../../api/_lib/bestPossibleWords";
 import { mockPuzzleValidWords } from "@/data/mockPuzzleValidWords";
 
 type ReviewProps = {

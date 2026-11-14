@@ -7,7 +7,7 @@ import { Share2 } from "lucide-react";
 import { Button } from "../../button";
 import { cn } from "@/lib/cn";
 import { mockPuzzleValidWords } from "@/data/mockPuzzleValidWords";
-import { calculateTopScoringWords } from "@/lib/bestPossibleWords";
+import { calculateTopScoringWords } from "../../../../api/_lib/bestPossibleWords";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
 import { GameProgress, PuzzleDefinition } from "@/context/types";
 

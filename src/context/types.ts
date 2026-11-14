@@ -1,3 +1,5 @@
+import type { TopScoringWord } from "../../api/_lib/bestPossibleWords";
+
 export type BonusTile = "dl" | "tl" | "dw" | "tw";
 export type Axis = "horizontal" | "vertical";
 export type AxisMembership = Axis | "both";
@@ -129,4 +131,11 @@ export interface GameStateSchema {
 	progress: GameProgress;
 }
 
-export type PuzzleEnvelope = { id: number; date: string; puzzle: PuzzleDefinition; dictionary: string[]; createdAt: Date };
+export type PuzzleEnvelope = {
+	id: number;
+	date: string;
+	puzzle: PuzzleDefinition;
+	dictionary: string[];
+	createdAt: Date;
+	topScoringWords: TopScoringWord[];
+};

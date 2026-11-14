@@ -4,7 +4,7 @@ import moment from "moment";
 import { randomUUID } from "crypto";
 import { getRandomInt } from "./utils.js";
 import { generateRackLetters } from "./generateRackLetters.js";
-
+import { calculateTopScoringWords } from "./bestPossibleWords.js";
 const redis = Redis.fromEnv();
 
 const boardTemplate: PuzzleDefinition["board"] = {
@@ -94,6 +94,7 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 
 export const generatePuzzle = async () => {
 	try {
+		await redis.del("puzzle:1", "puzzles:all", "racks:all");
 		const { letters, dictionary } = await generateRackLetters();
 		console.log("Generated rack letters: ", letters);
 		if (!letters || !dictionary?.length) return;
@@ -102,8 +103,15 @@ export const generatePuzzle = async () => {
 		console.log("Generated puzzle config.");
 
 		const rackKey = `puzzle:${puzzle.id}`;
-
-		const puzzleEnvelope: PuzzleEnvelope = { id: puzzle.id, date: puzzle.date, puzzle, dictionary, createdAt: new Date() };
+		const topScoringWords = calculateTopScoringWords(puzzle, dictionary, { limit: 20 });
+		const puzzleEnvelope: PuzzleEnvelope = {
+			id: puzzle.id,
+			date: puzzle.date,
+			puzzle,
+			dictionary,
+			createdAt: new Date(),
+			topScoringWords,
+		};
 		console.log("Puzzle envelope created:", puzzleEnvelope);
 		const pipeline = redis.pipeline();
 		pipeline.lpush("puzzles:all", puzzle.id);
