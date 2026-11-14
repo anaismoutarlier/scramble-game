@@ -6,7 +6,7 @@ import { randomUUID } from "crypto";
 
 const redis = Redis.fromEnv();
 export const POST = handleSchedule(async () => {
-	const puzzle = await redis.get<PuzzleEnvelope>("puzzles:2");
+	const puzzle = await redis.get<PuzzleEnvelope>("puzzle:2");
 	const pipeline = redis.pipeline();
 	const prevPuzzle = structuredClone(puzzle);
 	if (prevPuzzle) {
@@ -26,8 +26,7 @@ export const POST = handleSchedule(async () => {
 		dictionary: newDictionary,
 		puzzle: { ...puzzle?.puzzle, rackTiles: newWord.split("").map(el => ({ id: randomUUID(), letter: el })) as unknown as RackTiles },
 	};
-	pipeline.lpop("puzzles:all");
-	pipeline.lpop("racks:all");
+	pipeline.lset("puzzles:all", 0, 3);
 	pipeline.set("puzzle:2", JSON.stringify(newPuzzle), { ex: 3 * 60 * 60 * 24 });
 	await pipeline.exec();
 });
