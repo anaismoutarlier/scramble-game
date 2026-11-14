@@ -64,7 +64,7 @@ const generateBonusTiles = () => {
 };
 
 export const generatePuzzleStructure = async ({ letters }: { letters: string[7] }) => {
-	const prevPuzzleIdentifier = await redis.lindex("puzzles:all", -1);
+	const prevPuzzleIdentifier = await redis.lindex("puzzles:all", 1);
 	const prevPuzzleId = prevPuzzleIdentifier ? Number(prevPuzzleIdentifier) : null;
 	const id = prevPuzzleId ? prevPuzzleId + 1 : 1;
 	const date = moment().format("YYYY-MM-DD");
