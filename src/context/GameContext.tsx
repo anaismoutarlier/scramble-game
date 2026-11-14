@@ -3,9 +3,19 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { alphabet } from "../../api/_lib/alphabet";
+import { getPuzzle } from "@/actions/getPuzzle";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 import { mockPuzzleValidWordSet } from "@/data/mockPuzzleValidWords";
-import type { Axis, BoardTemplate, CellId, GameProgress, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/context/types";
+import type {
+	Axis,
+	BoardTemplate,
+	CellId,
+	GameProgress,
+	OngoingAttemptTile,
+	PuzzleDefinition,
+	RackTileId,
+	ScoreBreakdown,
+} from "@/context/types";
 import { toast } from "@/components/ui/toast";
 import { randomUUID } from "crypto";
 
@@ -19,7 +29,7 @@ type PlacementValidation = {
 };
 
 type GameContextValue = {
-	puzzle: typeof mockPuzzleDefinition;
+	puzzle: PuzzleDefinition;
 	progress: GameProgress;
 	currentStreak: number;
 	onStartPuzzle: () => void;
@@ -75,8 +85,20 @@ const createDefaultStreakStorage = (): StreakStorage => ({
 
 const normalizeStreakStorage = (parsed: Partial<StreakStorage>): StreakStorage => ({
 	currentStreak: typeof parsed.currentStreak === "number" && parsed.currentStreak >= 0 ? parsed.currentStreak : 0,
-	lastCompletedPuzzleId: typeof parsed.lastCompletedPuzzleId === "string" ? parsed.lastCompletedPuzzleId : undefined,
+	lastCompletedPuzzleId: typeof parsed.lastCompletedPuzzleId === "number" ? parsed.lastCompletedPuzzleId : undefined,
 });
+
+const formatLocalDateForPuzzle = (date: Date): string => {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
+};
+
+const isStreakContinuous = (puzzleId: number, lastCompletedPuzzleId?: number): boolean => {
+	if (typeof lastCompletedPuzzleId !== "number") return true;
+	return puzzleId === lastCompletedPuzzleId || puzzleId === lastCompletedPuzzleId + 1;
+};
 
 const normalizeStoredProgress = (parsed: Partial<StoredProgress>, fallback: StoredProgress): StoredProgress => ({
 	...fallback,
@@ -233,20 +255,65 @@ const parseCellId = (id: unknown): CellId | null => {
 	return id.slice(CELL_DROP_PREFIX.length);
 };
 
+type GameProviderStateProps = {
+	children: React.ReactNode;
+	puzzle: PuzzleDefinition;
+};
+
 export function GameProvider({ children }: { children: React.ReactNode }) {
-	const puzzle = mockPuzzleDefinition;
+	const [puzzle, setPuzzle] = useState<PuzzleDefinition>(mockPuzzleDefinition);
+
+	useEffect(() => {
+		let isCancelled = false;
+
+		const syncPuzzleOfTheDay = async () => {
+			const localDate = formatLocalDateForPuzzle(new Date());
+			const puzzleForToday = await getPuzzle({ date: localDate });
+			if (!puzzleForToday) {
+				throw new Error(`No puzzle found for ${localDate}`);
+			}
+
+			if (!isCancelled) {
+				setPuzzle(puzzleForToday);
+			}
+		};
+
+		void syncPuzzleOfTheDay().catch(error => {
+			console.error("Failed to fetch puzzle of the day", error);
+			toast.add({
+				type: "error",
+				title: "Unable to load today's puzzle",
+				description: "We couldn't sync the latest puzzle right now. Please refresh and try again.",
+			});
+		});
+
+		return () => {
+			isCancelled = true;
+		};
+	}, []);
+
+	return (
+		<GameProviderState key={puzzle.id} puzzle={puzzle}>
+			{children}
+		</GameProviderState>
+	);
+}
+
+function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 	const storageKey = getStorageKey(puzzle.id);
 	const [savedProgress, setSavedProgress] = useState<StoredProgress>(() => {
 		const fallback = createDefaultStoredProgress(puzzle.id, puzzle.date);
 		if (typeof window === "undefined") return fallback;
 
-		const raw = window.localStorage.getItem(storageKey);
-		if (!raw) return fallback;
+		const rawProgress = window.localStorage.getItem(storageKey);
+		if (!rawProgress) return fallback;
 
 		try {
-			const parsed = JSON.parse(raw) as Partial<StoredProgress>;
-			if (parsed.puzzleId !== puzzle.id) return fallback;
-			return normalizeStoredProgress(parsed, fallback);
+			const parsedProgress = JSON.parse(rawProgress) as Partial<StoredProgress>;
+			if (parsedProgress.puzzleId !== puzzle.id) {
+				return fallback;
+			}
+			return normalizeStoredProgress(parsedProgress, fallback);
 		} catch {
 			window.localStorage.removeItem(storageKey);
 			return fallback;
@@ -256,16 +323,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const fallback = createDefaultStreakStorage();
 		if (typeof window === "undefined") return fallback;
 
-		const raw = window.localStorage.getItem(STREAK_STORAGE_KEY);
-		if (!raw) return fallback;
+		const rawStreak = window.localStorage.getItem(STREAK_STORAGE_KEY);
+		if (!rawStreak) return fallback;
 
+		let parsedStreak = fallback;
 		try {
-			const parsed = JSON.parse(raw) as Partial<StreakStorage>;
-			return normalizeStreakStorage(parsed);
+			parsedStreak = normalizeStreakStorage(JSON.parse(rawStreak) as Partial<StreakStorage>);
 		} catch {
 			window.localStorage.removeItem(STREAK_STORAGE_KEY);
 			return fallback;
 		}
+
+		if (!isStreakContinuous(puzzle.id, parsedStreak.lastCompletedPuzzleId)) {
+			return { ...parsedStreak, currentStreak: 0 };
+		}
+
+		return parsedStreak;
 	});
 	const [placedTiles, setPlacedTiles] = useState<OngoingAttemptTile[]>([]);
 	const [selectedRackTileId, setSelectedRackTileId] = useState<RackTileId | null>(null);
@@ -417,8 +490,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					return prev;
 				}
 
+				const nextStreakCount = isStreakContinuous(savedProgress.puzzleId, prev.lastCompletedPuzzleId)
+					? prev.currentStreak + 1
+					: 1;
 				return {
-					currentStreak: prev.currentStreak + 1,
+					currentStreak: nextStreakCount,
 					lastCompletedPuzzleId: savedProgress.puzzleId,
 				};
 			});

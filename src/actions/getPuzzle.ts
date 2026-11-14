@@ -1,6 +1,5 @@
 "use server";
 import { Redis } from "@upstash/redis";
-import moment from "moment";
 import type { PuzzleEnvelope } from "@/context/types";
 
 const redis = Redis.fromEnv();
@@ -22,9 +21,8 @@ async function getAllByPrefix<T = unknown>(prefix: string): Promise<T[]> {
 	return await redis.mget<T[]>(...keys);
 }
 
-export async function getPuzzle({ date }: { date: Date }) {
-	const localeStringDate = moment(date).format("YYYY-MM-DD");
+export async function getPuzzle({ date }: { date: string }) {
 	const puzzles = await getAllByPrefix<PuzzleEnvelope>("puzzle:");
-	const puzzle = puzzles.find(el => el.date === localeStringDate);
-	return puzzle?.puzzle;
+	const puzzle = puzzles.find(el => el.date === date);
+	return puzzle?.puzzle ?? null;
 }

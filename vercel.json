@@ -2,7 +2,7 @@
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"schedules": {
 		"generate": {
-			"schedule": "0 0 * * *",
+			"schedule": "1 0 * * *",
 			"function": "api/generate",
 			"timezone": "Pacific/Kiritimati"
 		}
