@@ -27,6 +27,6 @@ export const POST = handleSchedule(async () => {
 
 	for (const puzzle of puzzles) {
 		const topScoringWords = calculateTopScoringWords(puzzle.puzzle, puzzle.dictionary, { limit: 20 });
-		await redis.set(`puzzle:${puzzle.id}`, JSON.stringify({ ...puzzle, topScoringWords }));
+		await redis.set(`puzzle:${puzzle.id}`, JSON.stringify({ ...puzzle, topScoringWords }), { ex: 3 * 60 * 60 * 24 });
 	}
 });
