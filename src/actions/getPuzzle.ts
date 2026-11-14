@@ -21,8 +21,13 @@ async function getAllByPrefix<T = unknown>(prefix: string): Promise<T[]> {
 	return await redis.mget<T[]>(...keys);
 }
 
-export async function getPuzzle({ date }: { date: string }) {
+export async function getPuzzleByDate({ date }: { date: string }) {
 	const puzzles = await getAllByPrefix<PuzzleEnvelope>("puzzle:");
 	const puzzle = puzzles.find(el => el.date === date);
 	return puzzle?.puzzle ?? null;
+}
+
+export async function getPuzzleById(id: string | number) {
+	const puzzle = await redis.get<PuzzleEnvelope>(`puzzle:${id}`);
+	return puzzle;
 }

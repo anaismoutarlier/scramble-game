@@ -3,9 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { alphabet } from "../../api/_lib/alphabet";
-import { getPuzzle } from "@/actions/getPuzzle";
+import { getPuzzleByDate } from "@/actions/getPuzzle";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
-import { mockPuzzleValidWordSet } from "@/data/mockPuzzleValidWords";
 import type {
 	Axis,
 	BoardTemplate,
@@ -17,7 +16,8 @@ import type {
 	ScoreBreakdown,
 } from "@/context/types";
 import { toast } from "@/components/ui/toast";
-import { randomUUID } from "crypto";
+import { v4 as randomUUID } from "uuid";
+import { checkWord } from "@/actions/checkWord";
 
 type StoredProgress = Omit<GameProgress, "currentAttempt">;
 
@@ -268,7 +268,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 		const syncPuzzleOfTheDay = async () => {
 			const localDate = formatLocalDateForPuzzle(new Date());
-			const puzzleForToday = await getPuzzle({ date: localDate });
+			const puzzleForToday = await getPuzzleByDate({ date: localDate });
 			if (!puzzleForToday) {
 				throw new Error(`No puzzle found for ${localDate}`);
 			}
@@ -416,7 +416,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 		[placedTiles, puzzle.board, shouldApplySlamBonus],
 	);
 
-	const onSubmitCurrentAttempt = useCallback(() => {
+	const onSubmitCurrentAttempt = useCallback(async () => {
 		if (!placementValidation.isSubmittable || !placementValidation.axis) return;
 		const placementAxis: Axis = placementValidation.axis;
 
@@ -438,7 +438,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			return;
 		}
 
-		const isValidWord = mockPuzzleValidWordSet.has(candidateWord);
+		const isValidWord = await checkWord(candidateWord, savedProgress.puzzleId);
 		if (!isValidWord) {
 			toast.add({
 				type: "error",
@@ -490,9 +490,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 					return prev;
 				}
 
-				const nextStreakCount = isStreakContinuous(savedProgress.puzzleId, prev.lastCompletedPuzzleId)
-					? prev.currentStreak + 1
-					: 1;
+				const nextStreakCount = isStreakContinuous(savedProgress.puzzleId, prev.lastCompletedPuzzleId) ? prev.currentStreak + 1 : 1;
 				return {
 					currentStreak: nextStreakCount,
 					lastCompletedPuzzleId: savedProgress.puzzleId,
