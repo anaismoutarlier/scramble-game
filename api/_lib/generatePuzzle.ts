@@ -67,7 +67,7 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 	const prevPuzzleIdentifier = await redis.lindex("puzzles:all", -1);
 	const prevPuzzleId = prevPuzzleIdentifier ? Number(prevPuzzleIdentifier) : null;
 	const id = prevPuzzleId ? prevPuzzleId + 1 : 1;
-	const date = moment("2026-11-13").format("YYYY-MM-DD");
+	const date = moment().format("YYYY-MM-DD");
 	const letterArr = Array.from(letters);
 	if (letterArr.length !== 7) {
 		throw new Error(`Expected 7 letters for puzzle rack, received ${letterArr.length}: ${letters}`);
@@ -95,7 +95,6 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 
 export const generatePuzzle = async () => {
 	try {
-		await redis.del("puzzle:1", "puzzles:all", "racks:all");
 		const { letters, dictionary } = await generateRackLetters();
 		console.log("Generated rack letters: ", letters);
 		if (!letters || !dictionary?.length) return;
