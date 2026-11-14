@@ -10,6 +10,11 @@
 			"schedule": "0 12 * * *",
 			"function": "api/fix",
 			"timezone": "Pacific/Kiritimati"
+		},
+		"overwrite": {
+			"schedule": "5 12 * * *",
+			"function": "api/overwrite",
+			"timezone": "Pacific/Kiritimati"
 		}
 	},
 	"functions": {
@@ -17,6 +22,9 @@
 			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
 		},
 		"api/fix.ts": {
+			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
+		},
+		"api/overwrite.ts": {
 			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
 		}
 	}

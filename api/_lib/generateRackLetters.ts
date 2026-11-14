@@ -1,13 +1,13 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { findSubWords } from "./sub-words.js";
 import { Redis } from "@upstash/redis";
 import { getRandomInt, randomize } from "./utils.js";
+import { generateDictionary } from "./generateDictionary.js";
+
 const redis = Redis.fromEnv();
 
 export const generateRackLetters = async (): Promise<{ letters: string[7]; dictionary: string[] }> => {
 	const trayLetterList: string[7][] = (await readFile(join(process.cwd(), "src/data/word-list.txt"), { encoding: "utf8" })).split("\n");
-	const wordList = (await readFile(join(process.cwd(), "src/data/enable1.txt"), { encoding: "utf8" })).split("\n");
 	const usedRacksLen = await redis.llen("racks:all");
 	const usedRacks = await redis.lrange("racks:all", 0, usedRacksLen);
 	const usedRacksSet = new Set(usedRacks);
@@ -26,6 +26,6 @@ export const generateRackLetters = async (): Promise<{ letters: string[7]; dicti
 			i = getRandomInt(0, trayLetterList.length);
 		}
 	}
-	const dictionary = findSubWords(rackLetters, wordList);
+	const dictionary = await generateDictionary(rackLetters);
 	return { letters: randomize(rackLetters), dictionary };
 };
