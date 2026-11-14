@@ -26,7 +26,7 @@ export const POST = handleSchedule(async () => {
 	const puzzles = await getAllByPrefix<PuzzleEnvelope>("puzzle:");
 
 	for (const puzzle of puzzles) {
-		const topScoringWords = calculateTopScoringWords(puzzle.puzzle, puzzle.dictionary);
+		const topScoringWords = calculateTopScoringWords(puzzle.puzzle, puzzle.dictionary, { limit: 20 });
 		await redis.set(`puzzle:${puzzle.id}`, JSON.stringify({ ...puzzle, topScoringWords }));
 	}
 });
