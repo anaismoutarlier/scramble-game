@@ -8,6 +8,7 @@ import { Button } from "../../button";
 import { cn } from "@/lib/cn";
 import { getResultOutcomeLabel } from "@/data/resultOutcomeTiers";
 import type { TopScoringWord, GameProgress, PuzzleDefinition } from "@/context/types";
+import { toast } from "@/components/ui/toast";
 
 const MAX_ATTEMPTS = 5;
 
@@ -64,6 +65,39 @@ function ResultWordRow({ attemptNumber, word, score }: ResultWordRowProps) {
 	);
 }
 
+function roundTo10(num: number) {
+	return Math.round(num / 10) * 10;
+}
+
+// 🟢🟢🟢🟢🟢🟢🟢⚪⚪⚪⭐🟡
+const generateShareMessage = ({
+	percentage,
+	attempts,
+	outcomeLabel,
+	puzzleId,
+}: {
+	percentage: number;
+	attempts: { word?: string }[];
+	outcomeLabel: string;
+	puzzleId: string | number;
+}) => {
+	let text = `SCRAMBLE #${puzzleId}\n\n`;
+	text += `${outcomeLabel}\n`;
+	const percentageInTenths = roundTo10(percentage);
+	console.log({ percentage, percentageInTenths });
+	const percentageDisplay = Array.from({ length: 10 }, (_, i) => (i * 10 < percentageInTenths ? "🟢" : "⚪")).join("");
+	text += `${percentageDisplay}\n\n`;
+	for (const attempt of attempts) {
+		const wordEmojiDisplay =
+			!attempt.word || !attempt.word.length
+				? "-"
+				: Array.from({ length: attempt.word.length }, () => ((attempt.word || "").length === 7 ? "⭐" : "🟡")).join("");
+		text += `${wordEmojiDisplay}\n`;
+	}
+
+	return text;
+};
+
 export const ResultsMainContent = ({
 	puzzle,
 	progress,
@@ -94,6 +128,31 @@ export const ResultsMainContent = ({
 			};
 		});
 	}, [progress.attempts]);
+
+	const handleShare = async () => {
+		const shareMessage = generateShareMessage({ percentage: clampedPercent, attempts: attempts, outcomeLabel, puzzleId: puzzle.id });
+
+		const payload = {
+			title: "ScrambleGame",
+			text: shareMessage,
+		};
+
+		if (navigator.share) {
+			try {
+				await navigator.share(payload);
+				console.log("Shared successfully!");
+			} catch (err: unknown) {
+				if (err instanceof Error && err.name !== "AbortError") {
+					console.error("Share failed:", err);
+				}
+			}
+		} else {
+			await navigator.clipboard.writeText(payload.text);
+			toast.add({
+				description: `Results copied to clipboard.`,
+			});
+		}
+	};
 
 	return (
 		<main className="w-full flex justify-center min-h-[calc(100vh-100px)] items-start px-6 lg:px-10 py-8 sm:py-10 md:py-12">
@@ -163,7 +222,7 @@ export const ResultsMainContent = ({
 				</div>
 
 				<div className="w-full flex flex-col gap-2.5">
-					<Button className="w-full" theme="light" icon={Share2}>
+					<Button className="w-full" theme="light" icon={Share2} onClick={handleShare}>
 						Share Results
 					</Button>
 					<Button variant="outlined" theme="primary" className="w-full" onClick={() => toggleView("review")}>
