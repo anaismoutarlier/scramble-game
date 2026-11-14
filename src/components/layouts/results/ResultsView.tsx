@@ -68,17 +68,14 @@ export const ResultsMainContent = ({
 	puzzle,
 	progress,
 	toggleView,
+	bestPossibleScore,
 }: {
 	puzzle: PuzzleDefinition;
 	progress: GameProgress;
 	toggleView: (v: "results" | "review") => void;
+	bestPossibleScore: number;
+	bestPossibleWords?: TopScoringWord[];
 }) => {
-	const bestPossibleWords: TopScoringWord[] = useMemo(() => [], []);
-	const bestPossibleScore = useMemo(
-		() => bestPossibleWords.reduce((total, wordEntry) => total + wordEntry.score, 0),
-		[bestPossibleWords],
-	);
-
 	const totalScore = progress.totalScore;
 	const percentOfBestPossible = bestPossibleScore > 0 ? Math.round((totalScore / bestPossibleScore) * 100) : 0;
 	const clampedPercent = Math.max(0, Math.min(100, percentOfBestPossible));

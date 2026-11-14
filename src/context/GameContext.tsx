@@ -4,7 +4,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { alphabet } from "../../api/_lib/alphabet";
 import { getPuzzleByDate } from "@/actions/getPuzzle";
-import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 import type {
 	Axis,
 	BoardTemplate,
@@ -261,7 +260,8 @@ type GameProviderStateProps = {
 };
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-	const [puzzle, setPuzzle] = useState<PuzzleDefinition>(mockPuzzleDefinition);
+	const [puzzle, setPuzzle] = useState<PuzzleDefinition | null>(null);
+	const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null);
 
 	useEffect(() => {
 		let isCancelled = false;
@@ -270,27 +270,42 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const localDate = formatLocalDateForPuzzle(new Date());
 			const puzzleForToday = await getPuzzleByDate({ date: localDate });
 			if (!puzzleForToday) {
-				throw new Error(`No puzzle found for ${localDate}`);
+				throw new Error(`Puzzle not found for ${localDate}`);
 			}
 
 			if (!isCancelled) {
 				setPuzzle(puzzleForToday);
+				setLoadErrorMessage(null);
 			}
 		};
 
 		void syncPuzzleOfTheDay().catch(error => {
 			console.error("Failed to fetch puzzle of the day", error);
-			toast.add({
-				type: "error",
-				title: "Unable to load today's puzzle",
-				description: "We couldn't sync the latest puzzle right now. Please refresh and try again.",
-			});
+			if (!isCancelled) {
+				setLoadErrorMessage("No puzzle is available for today. Please check back later.");
+			}
 		});
 
 		return () => {
 			isCancelled = true;
 		};
 	}, []);
+
+	if (loadErrorMessage) {
+		return (
+			<main className="w-full min-h-screen flex items-center justify-center px-6">
+				<p className="text-light text-sm sm:text-base font-semibold font-sans text-center">{loadErrorMessage}</p>
+			</main>
+		);
+	}
+
+	if (!puzzle) {
+		return (
+			<main className="w-full min-h-screen flex items-center justify-center px-6">
+				<p className="text-light text-sm sm:text-base font-semibold font-sans text-center">Loading today&apos;s puzzle…</p>
+			</main>
+		);
+	}
 
 	return (
 		<GameProviderState key={puzzle.id} puzzle={puzzle}>

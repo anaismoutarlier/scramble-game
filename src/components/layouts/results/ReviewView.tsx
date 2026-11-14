@@ -8,9 +8,10 @@ import { TopScoringWord } from "@/context/types";
 
 type ReviewProps = {
 	toggleView: (v: "results" | "review") => void;
+	bestPossibleWords: TopScoringWord[];
 };
 
-export function Review({ toggleView }: ReviewProps) {
+export function Review({ toggleView, bestPossibleWords }: ReviewProps) {
 	const { puzzle, progress } = useGameContext();
 	const attemptsScrollContainerRef = useRef<HTMLDivElement | null>(null);
 	const bestWordsScrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -27,8 +28,6 @@ export function Review({ toggleView }: ReviewProps) {
 				.filter(attempt => Boolean(attempt.word?.trim().length)),
 		[progress.attempts],
 	);
-
-	const bestWords: TopScoringWord[] = useMemo(() => [], []);
 
 	const updateScrollButtons = useCallback(
 		(
@@ -76,7 +75,7 @@ export function Review({ toggleView }: ReviewProps) {
 			window.removeEventListener("resize", syncAttemptScrollState);
 			window.removeEventListener("resize", syncBestWordsScrollState);
 		};
-	}, [attempts.length, bestWords.length, selectedPlacementIndexByWord, updateScrollButtons]);
+	}, [attempts.length, bestPossibleWords.length, selectedPlacementIndexByWord, updateScrollButtons]);
 
 	const scrollByCard = (containerRef: RefObject<HTMLDivElement | null>, direction: "left" | "right", cardSelector: string) => {
 		const container = containerRef.current;
@@ -200,7 +199,7 @@ export function Review({ toggleView }: ReviewProps) {
 							ref={bestWordsScrollContainerRef}
 							className="w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory no-scrollbar flex items-start gap-6 p-2.5"
 						>
-							{bestWords.map(bestWord => {
+							{bestPossibleWords.map(bestWord => {
 								const selectedPlacementIndex = selectedPlacementIndexByWord[bestWord.word] ?? 0;
 								const placement = bestWord.placements[selectedPlacementIndex % bestWord.placements.length];
 								const placementCounterLabel =
