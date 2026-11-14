@@ -2,7 +2,7 @@
 
 import type { BoardCell } from "@/context/types";
 import { cn } from "@/lib/cn";
-import { alphabet } from "@/data/alphabet";
+import { alphabet } from "../../../api/_lib/alphabet";
 
 const bgColors = {
 	dw: "bg-tile-dw-surface",

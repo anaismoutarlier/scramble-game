@@ -1,4 +1,4 @@
-import { alphabet } from "../../src/data/alphabet.js";
+import { alphabet } from "./alphabet.js";
 import type { Axis, PuzzleDefinition } from "../../src/context/types";
 
 export type TopScoringWordPlacement = {

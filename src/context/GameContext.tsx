@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
-import { alphabet } from "@/data/alphabet";
+import { alphabet } from "../../api/_lib/alphabet";
 import { mockPuzzleDefinition } from "@/data/mockPuzzleDefinition";
 import { mockPuzzleValidWordSet } from "@/data/mockPuzzleValidWords";
 import type { Axis, BoardTemplate, CellId, GameProgress, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/context/types";

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { useDraggable } from "@dnd-kit/react";
-import { alphabet } from "@/data/alphabet";
+import { alphabet } from "../../../api/_lib/alphabet";
 import { RackTile } from "@/context/types";
 import { cn } from "@/lib/cn";
 import { gameDndIds } from "@/context/GameContext";
