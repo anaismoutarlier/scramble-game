@@ -1,6 +1,6 @@
 import type { PuzzleEnvelope, BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "../../src/context/types";
 import { Redis } from "@upstash/redis";
-import moment from "moment";
+import moment from "moment-timezone";
 import { randomUUID } from "crypto";
 import { getRandomInt } from "./utils.js";
 import { generateRackLetters } from "./generateRackLetters.js";
@@ -69,7 +69,7 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 	const allIds = [...allPuzzles.map(el => Number(el))].filter(Boolean);
 	const prevPuzzleId = Math.max(...allIds);
 	const id = prevPuzzleId ? prevPuzzleId + 1 : 1;
-	const date = moment().format("YYYY-MM-DD");
+	const date = moment().tz("Pacific/Kiritimati").format("YYYY-MM-DD");
 	const letterArr = Array.from(letters);
 	if (letterArr.length !== 7) {
 		throw new Error(`Expected 7 letters for puzzle rack, received ${letterArr.length}: ${letters}`);
