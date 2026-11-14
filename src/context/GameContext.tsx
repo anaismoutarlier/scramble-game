@@ -47,17 +47,15 @@ type GameContextValue = {
 
 const GameContext = createContext<GameContextValue | null>(null);
 
-const STORAGE_KEY_PREFIX = "scramblegame:progress:";
+const PROGRESS_STORAGE_KEY = "scramblegame:progress";
 const STREAK_STORAGE_KEY = "scramblegame:current-streak";
 const TILE_DRAG_PREFIX = "tile:";
 const CELL_DROP_PREFIX = "cell:";
 const TRAY_DROP_ID = "tray-dropzone";
 const RACK_TILE_DND_TYPE = "rack-tile";
 const MAX_ATTEMPTS = 5;
-const SLAM_BONUS_POINTS = 10;
+const SLAM_BONUS_POINTS = 45;
 const ENABLE_CLICK_PLACEMENT = true;
-
-const getStorageKey = (puzzleId: number) => `${STORAGE_KEY_PREFIX}${puzzleId}`;
 
 const createDefaultStoredProgress = (puzzleId: number, puzzleDate: string): StoredProgress => {
 	const seededTimestamp = `${puzzleDate}T00:00:00.000Z`;
@@ -97,6 +95,12 @@ const formatLocalDateForPuzzle = (date: Date): string => {
 const isStreakContinuous = (puzzleId: number, lastCompletedPuzzleId?: number): boolean => {
 	if (typeof lastCompletedPuzzleId !== "number") return true;
 	return puzzleId === lastCompletedPuzzleId || puzzleId === lastCompletedPuzzleId + 1;
+};
+
+const isProgressForCurrentPuzzleDay = (parsed: Partial<StoredProgress>, puzzle: PuzzleDefinition): boolean => {
+	if (parsed.puzzleId !== puzzle.id) return false;
+	if (typeof parsed.startedAt !== "string") return false;
+	return parsed.startedAt.startsWith(`${puzzle.date}T`);
 };
 
 const normalizeStoredProgress = (parsed: Partial<StoredProgress>, fallback: StoredProgress): StoredProgress => ({
@@ -315,22 +319,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 }
 
 function GameProviderState({ children, puzzle }: GameProviderStateProps) {
-	const storageKey = getStorageKey(puzzle.id);
 	const [savedProgress, setSavedProgress] = useState<StoredProgress>(() => {
 		const fallback = createDefaultStoredProgress(puzzle.id, puzzle.date);
 		if (typeof window === "undefined") return fallback;
 
-		const rawProgress = window.localStorage.getItem(storageKey);
+		const rawProgress = window.localStorage.getItem(PROGRESS_STORAGE_KEY);
 		if (!rawProgress) return fallback;
 
 		try {
 			const parsedProgress = JSON.parse(rawProgress) as Partial<StoredProgress>;
-			if (parsedProgress.puzzleId !== puzzle.id) {
-				return fallback;
-			}
-			return normalizeStoredProgress(parsedProgress, fallback);
+			return isProgressForCurrentPuzzleDay(parsedProgress, puzzle) ? normalizeStoredProgress(parsedProgress, fallback) : fallback;
 		} catch {
-			window.localStorage.removeItem(storageKey);
+			window.localStorage.removeItem(PROGRESS_STORAGE_KEY);
 			return fallback;
 		}
 	});
@@ -362,8 +362,8 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
-		window.localStorage.setItem(storageKey, JSON.stringify(savedProgress));
-	}, [savedProgress, storageKey]);
+		window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(savedProgress));
+	}, [savedProgress]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;

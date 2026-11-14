@@ -5,10 +5,18 @@
 			"schedule": "1 0 * * *",
 			"function": "api/generate",
 			"timezone": "Pacific/Kiritimati"
+		},
+		"fix": {
+			"schedule": "0 12 * * *",
+			"function": "api/fix",
+			"timezone": "Pacific/Kiritimati"
 		}
 	},
 	"functions": {
 		"api/generate.ts": {
+			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
+		},
+		"api/fix.ts": {
 			"experimentalTriggers": [{ "type": "schedule/v1beta" }]
 		}
 	}

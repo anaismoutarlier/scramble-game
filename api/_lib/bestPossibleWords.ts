@@ -55,6 +55,7 @@ function calculatePlacementScore(word: string, placementCellIds: string[], puzzl
 function getScoredPlacementsForWord(word: string, puzzle: PuzzleDefinition): TopScoringWordPlacement[] {
 	const axisCellGroups = [puzzle.board.horizontalAxis, puzzle.board.verticalAxis];
 	const placements: TopScoringWordPlacement[] = [];
+	const centerCellId = puzzle.board.centerCellId;
 
 	for (const axisCells of axisCellGroups) {
 		const placementWindowCount = axisCells.length - word.length + 1;
@@ -62,6 +63,7 @@ function getScoredPlacementsForWord(word: string, puzzle: PuzzleDefinition): Top
 
 		for (let start = 0; start < placementWindowCount; start += 1) {
 			const placementCellIds = axisCells.slice(start, start + word.length);
+			if (!placementCellIds.includes(centerCellId)) continue;
 			const score = calculatePlacementScore(word, placementCellIds, puzzle);
 
 			placements.push({
