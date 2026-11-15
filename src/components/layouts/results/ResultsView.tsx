@@ -66,11 +66,6 @@ function ResultWordRow({ attemptNumber, word, score, isForfeit = false }: Result
 	);
 }
 
-function roundTo10(num: number) {
-	return Math.round(num / 10) * 10;
-}
-
-// 🟢🟢🟢🟢🟢🟢🟢⚪⚪⚪⭐🟡
 const generateShareMessage = ({
 	percentage,
 	attempts,
@@ -82,12 +77,8 @@ const generateShareMessage = ({
 	outcomeLabel: string;
 	puzzleId: string | number;
 }) => {
-	let text = `SCRAMBLE #${puzzleId}\n\n`;
-	text += `${outcomeLabel}\n`;
-	const percentageInTenths = roundTo10(percentage);
-	console.log({ percentage, percentageInTenths });
-	const percentageDisplay = Array.from({ length: 10 }, (_, i) => (i * 10 < percentageInTenths ? "🟢" : "⚪")).join("");
-	text += `${percentageDisplay}\n\n`;
+	let text = `SCRAMBLE #${puzzleId}\n`;
+	text += `${outcomeLabel} - ${percentage}%\n\n`;
 	for (const attempt of attempts) {
 		const wordEmojiDisplay =
 			!attempt.word || !attempt.word.length
