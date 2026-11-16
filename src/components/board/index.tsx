@@ -97,6 +97,8 @@ export function Board() {
 		return neighborCell ? placedLettersByCellId.get(neighborCell.id) : undefined;
 	};
 
+	const hasOngoingAttempt = currentAttempt?.placedTiles && currentAttempt.placedTiles.length > 0;
+
 	return (
 		<div className="flex flex-col gap-6 xl:gap-10">
 			<div className="flex flex-col w-fit">
@@ -144,7 +146,7 @@ export function Board() {
 					);
 				})}
 			</div>
-			{currentAttempt?.placedTiles?.length && <SubmitTray />}
+			{hasOngoingAttempt && <SubmitTray />}
 		</div>
 	);
 }
