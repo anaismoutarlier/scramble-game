@@ -7,7 +7,10 @@ import { generateDictionary } from "./generateDictionary.js";
 const redis = Redis.fromEnv();
 
 export const generateRackLetters = async (): Promise<{ letters: string[7]; dictionary: string[] }> => {
-	const trayLetterList: string[7][] = (await readFile(join(process.cwd(), "src/data/word-list.txt"), { encoding: "utf8" })).split("\n");
+	const trayLetterList: string[7][] = (await readFile(join(process.cwd(), "src/data/word-list.txt"), { encoding: "utf8" }))
+		.split("\n")
+		.map(l => l.trim())
+		.filter(Boolean);
 	const usedRacksLen = await redis.llen("racks:all");
 	const usedRacks = await redis.lrange("racks:all", 0, usedRacksLen);
 	const usedRacksSet = new Set(usedRacks);
@@ -20,6 +23,10 @@ export const generateRackLetters = async (): Promise<{ letters: string[7]; dicti
 			continue;
 		}
 		const tmpLetters: string[7] = trayLetterList[i];
+		if (tmpLetters.length !== 7) {
+			usedIndices.add(i);
+			i = getRandomInt(0, trayLetterList.length);
+		}
 		if (!usedRacksSet.has(tmpLetters)) rackLetters = tmpLetters;
 		else {
 			usedIndices.add(i);

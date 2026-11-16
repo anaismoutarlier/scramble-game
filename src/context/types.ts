@@ -65,6 +65,7 @@ export interface PuzzleGenerationMetadata {
 export interface PuzzleDefinition {
 	id: PuzzleId;
 	date: string;
+	rack: string;
 	rackTiles: RackTiles;
 	board: BoardTemplate;
 	generation: PuzzleGenerationMetadata;

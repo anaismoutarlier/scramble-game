@@ -99,7 +99,7 @@ export function calculateTopScoringWords(
 				const bFirstCell = b.placementCellIds[0] ?? "";
 				return aFirstCell.localeCompare(bFirstCell);
 			});
-			return { word, score, placements: sortedPlacements };
+			return { word: word.toLocaleLowerCase(), score, placements: sortedPlacements };
 		})
 		.sort((a, b) => {
 			if (b.score !== a.score) return b.score - a.score;

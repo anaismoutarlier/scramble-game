@@ -1,11 +1,14 @@
 export function findSubWords(letters: string, dictionary: string[], minLen = 2) {
-	console.log(`Checking ${letters}.`);
-	const cleanLetters = letters.toLowerCase().replace(/[^a-z]/g, "");
+	if (!dictionary || !dictionary.length) throw new Error("Invalid word list.");
+	const isUppercase = dictionary[0].toUpperCase() === dictionary[0];
+	const cleanLetters = isUppercase ? letters.toUpperCase().replace(/[^A-Z]/g, "") : letters.toLowerCase().replace(/[^a-z]/g, "");
+	console.log(`Compiling dictionary for ${cleanLetters}.`);
+	const charCodeOffset = isUppercase ? 65 : 97;
 	const maxLen = cleanLetters.length;
 
 	const charCounts = new Uint8Array(26);
 	for (let i = 0; i < maxLen; i++) {
-		charCounts[cleanLetters.charCodeAt(i) - 97]++;
+		charCounts[cleanLetters.charCodeAt(i) - charCodeOffset]++;
 	}
 
 	const results = [];
@@ -19,7 +22,7 @@ export function findSubWords(letters: string, dictionary: string[], minLen = 2) 
 		let isValid = true;
 
 		for (let i = 0; i < len; i++) {
-			const charCode = word.charCodeAt(i) - 97;
+			const charCode = word.charCodeAt(i) - charCodeOffset;
 
 			if (charCode < 0 || charCode > 25) {
 				isValid = false;
