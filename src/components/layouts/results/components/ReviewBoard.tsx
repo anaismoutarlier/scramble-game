@@ -18,6 +18,8 @@ type ReviewBoardProps = {
 	colorScheme?: "dark" | "light";
 	onShowOtherPlacements?: () => void;
 	placementCounterLabel?: string;
+	index?: number;
+	comment?: string;
 };
 
 export function ReviewBoard({
@@ -29,6 +31,8 @@ export function ReviewBoard({
 	colorScheme = "dark",
 	onShowOtherPlacements,
 	placementCounterLabel,
+	index,
+	comment,
 }: ReviewBoardProps) {
 	const board = puzzle.board;
 	const letters = word.toUpperCase().split("");
@@ -67,9 +71,9 @@ export function ReviewBoard({
 					isLightScheme ? "text-dark" : "text-light",
 				)}
 			>
+				{index && `#${index} `}
 				{word.toUpperCase()}
 			</h3>
-
 			<div
 				className={cn(
 					"relative border border-[0.5px] rounded-3xl p-3 sm:p-4 md:p-[18px] [--tile-size:clamp(26px,calc(72vw/7),63px)]",
@@ -125,7 +129,7 @@ export function ReviewBoard({
 					})}
 				</div>
 			</div>
-
+			{comment && <p className="text-center text-accent text-center text-xs max-w-lg">{comment}</p>}
 			{onShowOtherPlacements && (
 				<button
 					type="button"

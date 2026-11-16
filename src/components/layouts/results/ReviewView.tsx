@@ -199,7 +199,7 @@ export function Review({ toggleView, bestPossibleWords }: ReviewProps) {
 							ref={bestWordsScrollContainerRef}
 							className="w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory no-scrollbar flex items-start gap-6 p-2.5"
 						>
-							{bestPossibleWords.map(bestWord => {
+							{bestPossibleWords.map((bestWord, index) => {
 								const selectedPlacementIndex = selectedPlacementIndexByWord[bestWord.word] ?? 0;
 								const placement = bestWord.placements[selectedPlacementIndex % bestWord.placements.length];
 								const placementCounterLabel =
@@ -207,6 +207,16 @@ export function Review({ toggleView, bestPossibleWords }: ReviewProps) {
 										? `${(selectedPlacementIndex % bestWord.placements.length) + 1}/${bestWord.placements.length}`
 										: undefined;
 
+								const userFoundWord = attempts.find(a => a.word === bestWord.word);
+								const userFoundBestPlacement = userFoundWord && userFoundWord.score.total === bestWord.score;
+
+								let comment = "";
+								if (userFoundWord) {
+									if (userFoundBestPlacement) comment = "Good job finding the best way to play this word today!";
+									else
+										comment =
+											"There was a better way to play this word. Next time, keep a close eye on those bonus tiles to maximize your score!";
+								}
 								return (
 									<div key={bestWord.word} data-best-word-board-card className="w-full min-w-full snap-center">
 										<ReviewBoard
@@ -215,7 +225,9 @@ export function Review({ toggleView, bestPossibleWords }: ReviewProps) {
 											score={placement.score}
 											placementCellIds={placement.placementCellIds}
 											isSlam={bestWord.word.length === puzzle.rackTiles.length}
+											index={index + 1}
 											colorScheme="light"
+											comment={comment}
 											placementCounterLabel={placementCounterLabel}
 											onShowOtherPlacements={
 												bestWord.placements.length > 1
