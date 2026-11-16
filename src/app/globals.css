@@ -182,7 +182,7 @@ body {
 }
 
 @media (width > 768) {
-	.floatingchat-donate-button {
-		display: hidden;
+	div[id^="kofi-widget-overlay"] {
+		display: none !important;
 	}
 }
