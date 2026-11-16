@@ -11,7 +11,7 @@ import { useGameContext } from "@/context/GameContext";
 import { MAX_ATTEMPTS } from "@/game-config/constants";
 
 export const GameLayout = () => {
-	const { onDragStart, onDragEnd, activeDragLetter, onGiveUpPuzzle, progress } = useGameContext();
+	const { onDragStart, onDragEnd, activeDragLetter, onGiveUpPuzzle, progress, currentStreak } = useGameContext();
 	const [isGiveUpDialogOpen, setIsGiveUpDialogOpen] = useState(false);
 	const [isGivingUp, setIsGivingUp] = useState(false);
 	const attemptsForfeited = Math.max(0, MAX_ATTEMPTS - progress.attemptsUsed);
@@ -71,6 +71,7 @@ export const GameLayout = () => {
 				onOpenChange={setIsGiveUpDialogOpen}
 				onCancel={() => setIsGiveUpDialogOpen(false)}
 				onConfirm={handleConfirmGiveUp}
+				currentStreak={currentStreak}
 			/>
 		</DragDropProvider>
 	);
