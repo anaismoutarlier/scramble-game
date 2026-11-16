@@ -181,8 +181,12 @@ body {
 	}
 }
 
+.floatingchat-container-wrap span {
+	display: none !important;
+}
+
 @media (width > 768) {
-	div[id^="kofi-widget-overlay"] {
+	.floatingchat-container-wrap {
 		display: none !important;
 	}
 }
