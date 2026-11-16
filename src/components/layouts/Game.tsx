@@ -42,7 +42,7 @@ export const GameLayout = () => {
 	return (
 		<DragDropProvider sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
 			<main className="w-full flex justify-center min-h-[calc(100vh-100px)] items-start py-6 sm:py-12 px-6 lg:px-10">
-				<div className="w-full flex flex-col items-center md:items-start md:flex-row md:justify-center gap-8 xl:gap-12">
+				<div className="w-full flex flex-col items-center md:items-start md:flex-row md:justify-center gap-4 md:gap-8 xl:gap-12">
 					<div className="w-full max-w-100 flex flex-col order-1">
 						<LetterTray />
 						<div className="hidden md:block">

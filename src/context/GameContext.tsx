@@ -613,7 +613,6 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 
 	const onDragStart = useCallback(
 		(event: DragStartEvent) => {
-			console.log(event);
 			const sourceRackTileId = parseRackTileId(event.operation.source?.id);
 			if (sourceRackTileId) {
 				setSelectedRackTileId(current => (current === sourceRackTileId ? null : current));

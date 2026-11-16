@@ -1,8 +1,6 @@
 import { handleSchedule } from "@vercel/schedules";
 import { Redis } from "@upstash/redis";
-import { PuzzleEnvelope, RackTiles } from "@/context/types";
-import { generateDictionary } from "./_lib/generateDictionary.js";
-import { randomUUID } from "crypto";
+import { PuzzleEnvelope } from "@/context/types";
 
 const redis = Redis.fromEnv();
 export const POST = handleSchedule(async () => {

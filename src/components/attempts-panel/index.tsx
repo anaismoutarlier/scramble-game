@@ -22,7 +22,7 @@ export default function AttemptsPanel({ onGiveUp, isBusy = false, className }: A
 	return (
 		<aside className={cn("w-full rounded-2xl py-5 flex flex-col gap-3 items-end justify-end", className)}>
 			<header className="w-full flex items-center justify-between">
-				<div className="text-light text-[17px] font-bold font-sans">Attempts</div>
+				<div className="text-light text-[17px] font-bold font-sans">Your five words</div>
 				<div className="bg-primary rounded-xl px-2.5 py-1 text-dark text-xs font-bold font-sans">{attemptsRemaining} left</div>
 			</header>
 

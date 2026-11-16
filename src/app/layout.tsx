@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Oi } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
+import { KofiFloatingButton } from "kofi-react-widget";
 
 const babyGemoy = localFont({
 	src: "../fonts/Baby Gemoy.ttf",
@@ -26,7 +27,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html lang="en" className={`${babyGemoy.variable} ${dmSans.variable} ${oi.variable} h-full antialiased bg-background`}>
-			<body className="min-h-full w-full flex flex-col relative">{children}</body>
+			<body className="min-h-full w-full flex flex-col relative">
+				<KofiFloatingButton username="anaismoutarlier" background="#dccdf4" textColor="#684756" />
+				{children}
+			</body>
 		</html>
 	);
 }
