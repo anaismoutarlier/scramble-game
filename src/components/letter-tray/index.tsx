@@ -4,9 +4,12 @@ import { useDroppable } from "@dnd-kit/react";
 import { LetterTile } from "./LetterTile";
 import { gameDndIds, useGameContext } from "@/context/GameContext";
 import { cn } from "@/lib/cn";
+import { Button } from "../button";
+import { Shuffle } from "lucide-react";
 
 export function LetterTray() {
-	const { puzzle, selectedRackTileId, isRackTileInUse, onRackTileClick, isClickPlacementEnabled } = useGameContext();
+	const { rackTiles, onShuffleRackTiles, selectedRackTileId, isRackTileInUse, onRackTileClick, isClickPlacementEnabled } =
+		useGameContext();
 	const { ref, isDropTarget } = useDroppable({
 		id: gameDndIds.trayDropId,
 		accept: gameDndIds.rackTileType,
@@ -15,8 +18,18 @@ export function LetterTray() {
 
 	return (
 		<section className="w-full max-w-full rounded-2xl pb-5 flex flex-col items-center justify-center gap-1 sm:gap-3">
-			<header className="w-full flex items-center justify-center">
+			<header className="w-full flex items-center justify-between">
 				<h2 className="text-center text-light text-xs sm:text-sm md:text-base font-bold font-sans">Your Letters</h2>
+				<Button
+					aria-label="Shuffle letter tray"
+					icon={Shuffle}
+					variant="outlined"
+					className="h-9 px-4 text-xs !font-normal"
+					onClick={onShuffleRackTiles}
+					iconProps={{ size: 14, strokeWidth: 1.4 }}
+				>
+					Shuffle
+				</Button>
 			</header>
 
 			<div className="w-full h-px bg-primary" />
@@ -32,7 +45,7 @@ export function LetterTray() {
 					isDropTarget && "bg-primary/10",
 				)}
 			>
-				{puzzle.rackTiles.map(rackTile => (
+				{rackTiles.map(rackTile => (
 					<LetterTile
 						key={rackTile.id}
 						letter={rackTile}

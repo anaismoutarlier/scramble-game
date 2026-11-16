@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getPuzzleByDate } from "@/actions/getPuzzle";
-import type { PuzzleDefinition } from "@/context/types";
+import { type PuzzleDefinition } from "@/context/types";
 
 const formatLocalDateForPuzzle = (date: Date): string => {
 	const year = date.getFullYear();

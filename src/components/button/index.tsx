@@ -8,8 +8,14 @@ export function Button({
 	theme = "primary",
 	className,
 	icon,
+	iconProps,
 	...props
-}: ComponentProps<"button"> & { icon?: LucideIcon; variant?: "filled" | "outlined"; theme?: "light" | "dark" | "primary" }) {
+}: ComponentProps<"button"> & {
+	icon?: LucideIcon;
+	variant?: "filled" | "outlined";
+	theme?: "light" | "dark" | "primary";
+	iconProps?: { size?: number; strokeWidth?: number };
+}) {
 	const isOutlined = variant === "outlined";
 	let bgColor =
 		theme === "dark"
@@ -42,7 +48,7 @@ export function Button({
 				className,
 			)}
 		>
-			{Icon && <Icon />}
+			{Icon && <Icon {...(iconProps ?? {})} />}
 			<span className="text-nowrap font-semibold font-sans text-sm lg:text-base align-middle">{children}</span>
 		</button>
 	);
