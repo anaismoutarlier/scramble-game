@@ -79,12 +79,14 @@ const generateShareMessage = ({
 }) => {
 	let text = `SCRAMBLE #${puzzleId}\n`;
 	text += `${outcomeLabel} - ${percentage}%\n\n`;
-	for (const attempt of attempts) {
+	for (let i = 0; i < attempts.length; i++) {
+		if (i > 0) text += "\n";
+		const attempt = attempts[i];
 		const wordEmojiDisplay =
 			!attempt.word || !attempt.word.length
 				? "-"
 				: Array.from({ length: attempt.word.length }, () => ((attempt.word || "").length === 7 ? "⭐" : "🟡")).join("");
-		text += `${wordEmojiDisplay}\n`;
+		text += `${wordEmojiDisplay}`;
 	}
 
 	return text;

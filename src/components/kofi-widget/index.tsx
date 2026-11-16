@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback } from "react";
 import Script from "next/script";
 
 declare global {
@@ -12,20 +12,20 @@ declare global {
 }
 
 export function KofiWidget() {
-	const [isDisplayed, setIsDisplayed] = useState(false);
+	// const [isDisplayed, setIsDisplayed] = useState(false);
 
-	useEffect(() => {
-		function handleResize() {
-			setIsDisplayed(window.innerWidth > 768);
-		}
+	// useEffect(() => {
+	// 	function handleResize() {
+	// 		setIsDisplayed(window.innerWidth > 768);
+	// 	}
 
-		handleResize();
-		window.addEventListener("resize", handleResize);
+	// 	handleResize();
+	// 	window.addEventListener("resize", handleResize);
 
-		return () => {
-			window.removeEventListener("resize", handleResize);
-		};
-	}, []);
+	// 	return () => {
+	// 		window.removeEventListener("resize", handleResize);
+	// 	};
+	// }, []);
 
 	const initKofi = useCallback(() => {
 		if (typeof window !== "undefined" && window.kofiWidgetOverlay) {
@@ -43,5 +43,5 @@ export function KofiWidget() {
 		initKofi();
 	}, [initKofi]);
 
-	return !isDisplayed ? null : <Script id="kofi-overlay-script" src="https://ko-fi.com" strategy="afterInteractive" onReady={initKofi} />;
+	return <Script id="kofi-overlay-script" src="https://ko-fi.com" strategy="afterInteractive" onReady={initKofi} />;
 }
