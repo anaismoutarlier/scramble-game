@@ -20,7 +20,7 @@ import { useRackBoardInteractions } from "@/context/useRackBoardInteractions";
 type GameContextValue = {
 	puzzle: PuzzleDefinition;
 	progress: GameProgress;
-	rackTiles: RackTiles | [];
+	rackTiles: RackTiles;
 	currentStreak: number;
 	onStartPuzzle: () => void;
 	onGiveUpPuzzle: () => void;
@@ -87,7 +87,7 @@ function isRackTileArray(arr: RackTile[]): arr is [RackTile, RackTile, RackTile,
 function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 	const [savedProgress, setSavedProgress] = useState<StoredProgress>(() => readStoredProgressForPuzzle(puzzle));
 	const [streakStorage, setStreakStorage] = useState<StreakStorage>(() => readStreakStorageForPuzzle(puzzle.id));
-	const [rackTiles, setRackTiles] = useState<RackTiles | []>([]);
+	const [rackTiles, setRackTiles] = useState<RackTiles>(puzzle.rackTiles);
 
 	const onShuffleRackTiles = useCallback(() => {
 		setRackTiles(prev => {
@@ -96,13 +96,6 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			return prev;
 		});
 	}, []);
-
-	useEffect(() => {
-		if (rackTiles.length) return;
-		(() => {
-			setRackTiles(puzzle.rackTiles);
-		})();
-	}, [rackTiles, puzzle.rackTiles]);
 
 	useEffect(() => {
 		persistStoredProgress(savedProgress);
@@ -125,7 +118,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 		resetInteractionState,
 	} = useRackBoardInteractions({
 		board: puzzle.board,
-		rackTiles: puzzle.rackTiles,
+		rackTiles,
 	});
 
 	const placementValidation = useMemo(() => getPlacementValidation(placedTiles, puzzle.board), [placedTiles, puzzle.board]);
@@ -196,8 +189,8 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			placementValidation,
 			progress,
 			puzzle,
-			selectedRackTileId,
 			rackTiles,
+			selectedRackTileId,
 			onShuffleRackTiles,
 			recallRackTiles,
 		],

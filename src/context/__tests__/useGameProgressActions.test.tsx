@@ -245,4 +245,14 @@ describe("useGameProgressActions", () => {
 		expect(next.status).toBe("in_progress");
 		expect(next.updatedAt).toBeTruthy();
 	});
+
+	it("recalls rack tiles by resetting interaction state", () => {
+		const { result, resetInteractionState } = setup();
+
+		act(() => {
+			result.current.recallRackTiles();
+		});
+
+		expect(resetInteractionState).toHaveBeenCalledTimes(1);
+	});
 });
