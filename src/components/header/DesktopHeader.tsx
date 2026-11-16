@@ -26,7 +26,7 @@ export const DesktopHeader = ({
 					</div>
 				</div>
 				<div className="inline-flex gap-5 items-center">
-					{currentStreak && Number(currentStreak) > 0 && <CurrentStreakCard currentStreak={currentStreak} />}
+					{currentStreak ? <CurrentStreakCard currentStreak={currentStreak} /> : null}
 					<div className="inline-flex flex-col justify-center items-center gap-0.5">
 						<div className="text-primary text-center text-[12px] lg:text-xs font-semibold font-sans uppercase tracking-wider">
 							{date}
