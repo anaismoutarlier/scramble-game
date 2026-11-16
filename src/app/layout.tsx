@@ -3,6 +3,7 @@ import { DM_Sans, Oi } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
 import { KofiWidget } from "@/components/kofi-widget";
+
 const babyGemoy = localFont({
 	src: "../fonts/Baby Gemoy.ttf",
 	variable: "--font-baby-gemoy",

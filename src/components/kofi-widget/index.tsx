@@ -12,21 +12,6 @@ declare global {
 }
 
 export function KofiWidget() {
-	// const [isDisplayed, setIsDisplayed] = useState(false);
-
-	// useEffect(() => {
-	// 	function handleResize() {
-	// 		setIsDisplayed(window.innerWidth > 768);
-	// 	}
-
-	// 	handleResize();
-	// 	window.addEventListener("resize", handleResize);
-
-	// 	return () => {
-	// 		window.removeEventListener("resize", handleResize);
-	// 	};
-	// }, []);
-
 	const initKofi = useCallback(() => {
 		if (typeof window !== "undefined" && window.kofiWidgetOverlay) {
 			if (document.querySelector(".floatingchat-container-wrap")) return;
