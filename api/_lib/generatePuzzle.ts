@@ -87,6 +87,14 @@ const getNextPuzzleId = async (): Promise<number> => {
 	return id;
 };
 
+const rollbackPuzzleIdCounter = async (allocatedPuzzleId: number): Promise<void> => {
+	if (!Number.isInteger(allocatedPuzzleId) || allocatedPuzzleId <= 0) return;
+	const currentCounter = await redis.get<number>("puzzles:next-id");
+	if (currentCounter === allocatedPuzzleId) {
+		await redis.decr("puzzles:next-id");
+	}
+};
+
 const getPuzzleDate = (): string => moment().tz("Pacific/Kiritimati").format("YYYY-MM-DD");
 
 const tryClaimPuzzleDate = async (date: string, claimToken: string): Promise<boolean> => {
@@ -137,6 +145,7 @@ export const generatePuzzle = async () => {
 	let claimedDate: string | null = null;
 	let claimToken: string | null = null;
 	let shouldKeepDateClaim = false;
+	let allocatedPuzzleId: number | null = null;
 
 	try {
 		const { letters, dictionary } = await generateRackLetters();
@@ -152,6 +161,7 @@ export const generatePuzzle = async () => {
 		}
 
 		const puzzle = await generatePuzzleStructure({ letters });
+		allocatedPuzzleId = puzzle.id;
 		console.log("Puzzle config generated successfully.");
 		const rackKey = `puzzle:${puzzle.id}`;
 		const topScoringWords = calculateTopScoringWords(puzzle, dictionary, { limit: 20 });
@@ -180,6 +190,13 @@ export const generatePuzzle = async () => {
 				await releasePuzzleDateClaim(claimedDate, claimToken);
 			} catch (claimReleaseError) {
 				console.error("Failed to release puzzle date claim", claimReleaseError);
+			}
+		}
+		if (!shouldKeepDateClaim && typeof allocatedPuzzleId === "number") {
+			try {
+				await rollbackPuzzleIdCounter(allocatedPuzzleId);
+			} catch (counterRollbackError) {
+				console.error("Failed to roll back puzzle id counter", counterRollbackError);
 			}
 		}
 	}

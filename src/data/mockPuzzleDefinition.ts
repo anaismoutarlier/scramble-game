@@ -3,6 +3,7 @@ import type { PuzzleDefinition } from "@/context/types";
 export const mockPuzzleDefinition: PuzzleDefinition = {
 	id: 142,
 	date: "2026-11-11",
+	rack: "zygotes",
 	rackTiles: [
 		{ id: "rack-0", letter: "z" },
 		{ id: "rack-1", letter: "y" },
