@@ -180,3 +180,9 @@ body {
 		animation: none;
 	}
 }
+
+@media (width > 768) {
+	.floatingchat-donate-button {
+		display: hidden;
+	}
+}

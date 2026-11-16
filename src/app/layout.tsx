@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html lang="en" className={`${babyGemoy.variable} ${dmSans.variable} ${oi.variable} h-full antialiased bg-background`}>
 			<body className="min-h-full w-full flex flex-col relative">
-				<KofiFloatingButton username="anaismoutarlier" background="#c5fcca" textColor="#684756" text="Support Us" />
+				<KofiFloatingButton username="anaismoutarlier" background="#c5fcca" textColor="#684756" />
 				{children}
 			</body>
 		</html>

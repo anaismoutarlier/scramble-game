@@ -6,6 +6,7 @@ import { CurrentStreakCard } from "../current-streak-card";
 import { Wordmark } from "../wordmark";
 import { cn } from "@/lib/cn";
 import { HowToPlay } from "../how-to-play";
+import Image from "next/image";
 
 export function MobileHeader({
 	date,
@@ -81,7 +82,18 @@ export function MobileHeader({
 						{currentStreak ? <CurrentStreakCard currentStreak={currentStreak} size="compact" /> : null}
 					</div>
 
-					<HowToPlay buttonProps={{ variant: "outlined", icon: Info }} onTriggerClick={() => setIsMenuOpen(false)} />
+					<div className="flex flex-col items-end gap-2">
+						<HowToPlay buttonProps={{ variant: "outlined", icon: Info }} onTriggerClick={() => setIsMenuOpen(false)} />
+						<a
+							className="rounded-3xl items-center flex bg-tile-tw-surface px-6 py-2.5 gap-3 hover:bg-[color-mix(in_oklab,var(--tile-tw-surface)_70%,var(--light))]"
+							target="_blank"
+							rel="noopener noreferrer"
+							href={`https://ko-fi.com/anaismoutarlier`}
+						>
+							<Image height={21} width={29} src={"/kofi-logomarkLogo.webp"} alt="kofi-logo" />
+							<span className="font-sans text-nowrap text-sm font-semibold">Support Us</span>
+						</a>
+					</div>
 				</aside>
 			</div>
 		</header>
