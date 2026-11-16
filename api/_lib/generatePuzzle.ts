@@ -111,7 +111,7 @@ const releasePuzzleDateClaim = async (date: string, claimToken: string): Promise
 	}
 };
 
-export const generatePuzzleStructure = async ({ letters }: { letters: string[7] }) => {
+export const generatePuzzleStructure = async ({ letters, claimToken }: { letters: string[7]; claimToken: string }) => {
 	const letterArr = Array.from(letters);
 	if (letterArr.length !== 7) {
 		throw new Error(`Expected 7 letters for puzzle rack, received ${letterArr.length}: ${letters}`);
@@ -129,6 +129,7 @@ export const generatePuzzleStructure = async ({ letters }: { letters: string[7] 
 		bonusDistributionVersion: "v1",
 		scoringVersion: "v1",
 		dictionaryVersion: "v1",
+		dateClaimToken: claimToken,
 	};
 
 	return {
@@ -160,7 +161,7 @@ export const generatePuzzle = async () => {
 			throw new Error(`Puzzle for date ${claimedDate} is already being generated or already exists.`);
 		}
 
-		const puzzle = await generatePuzzleStructure({ letters });
+		const puzzle = await generatePuzzleStructure({ letters, claimToken });
 		allocatedPuzzleId = puzzle.id;
 		console.log("Puzzle config generated successfully.");
 		const rackKey = `puzzle:${puzzle.id}`;

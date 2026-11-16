@@ -60,6 +60,7 @@ export interface PuzzleGenerationMetadata {
 	bonusDistributionVersion: string;
 	scoringVersion: string;
 	dictionaryVersion: string;
+	dateClaimToken: string;
 }
 
 export interface PuzzleDefinition {

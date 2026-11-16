@@ -38,5 +38,6 @@ export const mockPuzzleDefinition: PuzzleDefinition = {
 		bonusDistributionVersion: "v1",
 		scoringVersion: "v1",
 		dictionaryVersion: "v1",
+		dateClaimToken: "234902-3940",
 	},
 };

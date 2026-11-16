@@ -2,11 +2,11 @@ import type { BoardTemplate, PuzzleDefinition, RackTiles } from "@/context/types
 
 export const createBoardTemplate = (): BoardTemplate => ({
 	cellsById: {
-		"r0c0": { id: "r0c0", coordinate: { row: 0, column: 0 }, isCenter: false, axisMembership: "both", bonus: null },
-		"r0c1": { id: "r0c1", coordinate: { row: 0, column: 1 }, isCenter: true, axisMembership: "both", bonus: "dw" },
-		"r0c2": { id: "r0c2", coordinate: { row: 0, column: 2 }, isCenter: false, axisMembership: "both", bonus: "tl" },
-		"r1c1": { id: "r1c1", coordinate: { row: 1, column: 1 }, isCenter: false, axisMembership: "both", bonus: "dl" },
-		"r2c1": { id: "r2c1", coordinate: { row: 2, column: 1 }, isCenter: false, axisMembership: "both", bonus: "tw" },
+		r0c0: { id: "r0c0", coordinate: { row: 0, column: 0 }, isCenter: false, axisMembership: "both", bonus: null },
+		r0c1: { id: "r0c1", coordinate: { row: 0, column: 1 }, isCenter: true, axisMembership: "both", bonus: "dw" },
+		r0c2: { id: "r0c2", coordinate: { row: 0, column: 2 }, isCenter: false, axisMembership: "both", bonus: "tl" },
+		r1c1: { id: "r1c1", coordinate: { row: 1, column: 1 }, isCenter: false, axisMembership: "both", bonus: "dl" },
+		r2c1: { id: "r2c1", coordinate: { row: 2, column: 1 }, isCenter: false, axisMembership: "both", bonus: "tw" },
 	},
 	horizontalAxis: ["r0c0", "r0c1", "r0c2"],
 	verticalAxis: ["r0c1", "r1c1", "r2c1"],
@@ -34,5 +34,6 @@ export const createPuzzle = (): PuzzleDefinition => ({
 		bonusDistributionVersion: "1",
 		scoringVersion: "1",
 		dictionaryVersion: "1",
+		dateClaimToken: "234",
 	},
 });
