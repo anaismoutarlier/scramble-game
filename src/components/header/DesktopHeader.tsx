@@ -26,7 +26,7 @@ export const DesktopHeader = ({
 					</div>
 				</div>
 				<div className="inline-flex gap-5 items-center">
-					{currentStreak && <CurrentStreakCard currentStreak={currentStreak} />}
+					{currentStreak && Number(currentStreak) > 0 && <CurrentStreakCard currentStreak={currentStreak} />}
 					<div className="inline-flex flex-col justify-center items-center gap-0.5">
 						<div className="text-primary text-center text-[12px] lg:text-xs font-semibold font-sans uppercase tracking-wider">
 							{date}
@@ -34,7 +34,7 @@ export const DesktopHeader = ({
 						<div className="text-light text-center text-sm lg:text-base font-bold font-sans">Day #{puzzleNo}</div>
 					</div>
 					<span className="w-px h-10 bg-primary" />
-						<HowToPlay />
+					<HowToPlay />
 				</div>
 			</div>
 		</header>

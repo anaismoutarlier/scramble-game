@@ -78,7 +78,7 @@ export function MobileHeader({
 							<div className="text-primary text-[8px] font-semibold font-sans uppercase tracking-widest">{date}</div>
 							<div className="text-light text-base font-bold font-sans">Day #{puzzleNo}</div>
 						</div>
-						{currentStreak && <CurrentStreakCard currentStreak={currentStreak} size="compact" />}
+						{currentStreak && Number(currentStreak) > 0 && <CurrentStreakCard currentStreak={currentStreak} size="compact" />}
 					</div>
 
 					<HowToPlay buttonProps={{ variant: "outlined", icon: Info }} onTriggerClick={() => setIsMenuOpen(false)} />
