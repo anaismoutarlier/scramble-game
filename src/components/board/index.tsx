@@ -6,9 +6,10 @@ import { BoardTile } from "./BoardTile";
 import { Button } from "../button";
 import { gameDndIds, useGameContext } from "@/context/GameContext";
 import { cn } from "@/lib/cn";
+import { ChevronsDown } from "lucide-react";
 
 const SubmitTray = () => {
-	const { progress, placementValidation, onSubmitCurrentAttempt } = useGameContext();
+	const { progress, placementValidation, onSubmitCurrentAttempt, recallRackTiles } = useGameContext();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const handleSubmit = async () => {
 		setIsSubmitting(true);
@@ -16,6 +17,7 @@ const SubmitTray = () => {
 		setIsSubmitting(false);
 	};
 
+	const hasPlacedTiles = progress.currentAttempt?.placedTiles && progress.currentAttempt.placedTiles.length > 0;
 	return (
 		<div className="inline-flex flex-col px-4 justify-start items-center gap-3 sm:gap-5">
 			<div className="inline-flex justify-center items-center gap-3">
@@ -25,9 +27,24 @@ const SubmitTray = () => {
 					{progress.currentAttempt?.score.total ?? 0} points
 				</div>
 			</div>
-			<Button className="w-full sm:max-w-sm" disabled={!placementValidation.isSubmittable || isSubmitting} onClick={handleSubmit}>
-				Submit
-			</Button>
+			<div className="w-full flex gap-2">
+				<Button className="w-full sm:max-w-sm" disabled={!placementValidation.isSubmittable || isSubmitting} onClick={handleSubmit}>
+					Play
+				</Button>
+				{hasPlacedTiles && (
+					<Button
+						aria-label="Recall all played tiles"
+						icon={ChevronsDown}
+						variant="outlined"
+						className="px-4 !font-normal"
+						onClick={recallRackTiles}
+						iconProps={{ size: 16, strokeWidth: 1.4 }}
+						disabled={isSubmitting || !hasPlacedTiles}
+					>
+						Recall
+					</Button>
+				)}
+			</div>
 		</div>
 	);
 };

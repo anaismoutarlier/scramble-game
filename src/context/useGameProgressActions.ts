@@ -6,9 +6,7 @@ import { checkWord } from "@/actions/checkWord";
 import { toast } from "@/components/ui/toast";
 import { isStreakContinuous, type PlacementValidation } from "@/context/game-domain";
 import type { ScoreBreakdown } from "@/context/types";
-import {
-	MAX_ATTEMPTS,
-} from "@/game-config/constants";
+import { MAX_ATTEMPTS } from "@/game-config/constants";
 import type { StreakStorage, StoredProgress } from "@/context/game-storage";
 
 type UseGameProgressActionsArgs = {
@@ -185,9 +183,14 @@ export const useGameProgressActions = ({
 		});
 	}, [setSavedProgress]);
 
+	const recallRackTiles = useCallback(() => {
+		resetInteractionState();
+	}, [resetInteractionState]);
+
 	return {
 		onSubmitCurrentAttempt,
 		onGiveUpPuzzle,
 		onStartPuzzle,
+		recallRackTiles,
 	};
 };

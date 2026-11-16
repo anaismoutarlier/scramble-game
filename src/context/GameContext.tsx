@@ -36,6 +36,7 @@ type GameContextValue = {
 	onDragStart: (event: DragStartEvent) => void;
 	onDragEnd: (event: DragEndEvent) => void;
 	onSubmitCurrentAttempt: () => void;
+	recallRackTiles: () => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -137,7 +138,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 		[placedTiles, puzzle.board, shouldApplySlamBonus],
 	);
 
-	const { onSubmitCurrentAttempt, onGiveUpPuzzle, onStartPuzzle } = useGameProgressActions({
+	const { onSubmitCurrentAttempt, onGiveUpPuzzle, onStartPuzzle, recallRackTiles } = useGameProgressActions({
 		savedProgress,
 		setSavedProgress,
 		setStreakStorage,
@@ -178,6 +179,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			onSubmitCurrentAttempt,
 			rackTiles,
 			onShuffleRackTiles,
+			recallRackTiles,
 		}),
 		[
 			activeDragLetter,
@@ -197,6 +199,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			selectedRackTileId,
 			rackTiles,
 			onShuffleRackTiles,
+			recallRackTiles,
 		],
 	);
 

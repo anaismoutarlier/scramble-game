@@ -41,15 +41,16 @@ export function Button({
 		<button
 			{...props}
 			className={cn(
-				"group/button disabled:cursor-auto text-dark cursor-pointer inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-2 border disabled:bg-disabled-surface",
+				"group/button disabled:cursor-auto text-dark cursor-pointer inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-2 border text-nowrap font-semibold font-sans text-sm lg:text-base align-middle",
 				bgColor,
 				textColor,
 				borderColor,
 				className,
+				isOutlined ? "disabled:border-disabled-surface disabled:text-disabled-surface" : "disabled:bg-disabled-surface",
 			)}
 		>
 			{Icon && <Icon {...(iconProps ?? {})} />}
-			<span className="text-nowrap font-semibold font-sans text-sm lg:text-base align-middle">{children}</span>
+			<span>{children}</span>
 		</button>
 	);
 }
