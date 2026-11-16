@@ -58,7 +58,7 @@ const SubmitTray = () => {
 						aria-label="Recall all played tiles"
 						icon={ChevronsDown}
 						variant="outlined"
-						className="px-4 !font-normal [&_span]:hidden sm:[&_span]:block"
+						className="px-4 !font-normal [&_span]:hidden sm:[&_span]:block px-2.5 sm:px-4"
 						onClick={recallRackTiles}
 						iconProps={{ size: 16, strokeWidth: 1.4 }}
 						disabled={isSubmitting || !hasPlacedTiles}

@@ -18,13 +18,13 @@ export function LetterTray() {
 
 	return (
 		<section className="w-full max-w-full rounded-2xl pb-5 flex flex-col items-center justify-center gap-3">
-			<header className="w-full flex items-center justify-between">
-				<h2 className="text-center text-light text-xs sm:text-sm md:text-base font-bold font-sans">Your Letters</h2>
+			<header className="w-full flex items-end justify-between">
+				<h2 className="text-center text-light text-base font-bold font-sans">Your Letters</h2>
 				<Button
 					aria-label="Shuffle letter tray"
 					icon={Shuffle}
 					variant="outlined"
-					className="h-9 px-4 text-xs !font-normal"
+					className="h-9 px-4 text-xs !font-normal px-2.5 sm:px-4 [&_span]:hidden sm:[&_span]:block"
 					onClick={onShuffleRackTiles}
 					iconProps={{ size: 14, strokeWidth: 1.4 }}
 				>

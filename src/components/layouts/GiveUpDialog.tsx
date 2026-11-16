@@ -17,21 +17,18 @@ type GiveUpDialogProps = {
 export function GiveUpDialog({ open, isGivingUp, attemptsForfeited, onOpenChange, onCancel, onConfirm, currentStreak }: GiveUpDialogProps) {
 	let desc = (
 		<span>
-			If you give up now, your remaining{" "}
-			<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>
-				{attemptsForfeited} {attemptsForfeited === 1 ? "attempt" : "attempts"}
-			</strong>{" "}
-			will be forfeited.
+			If you give up now, you will lose your{" "}
+			<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>{attemptsForfeited}</strong>. remaining{" "}
+			{attemptsForfeited === 1 ? "attempt" : "attempts"}
 		</span>
 	);
 	if (currentStreak > 0)
 		desc = (
 			<span>
-				If you give up now, your remaining{" "}
-				<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>
-					{attemptsForfeited} {attemptsForfeited === 1 ? "attempt" : "attempts"}
-				</strong>{" "}
-				will be forfeited and you will lose your current streak of <strong className="font-bold text-dark">{currentStreak}</strong>.
+				If you give up now, you will lose your{" "}
+				<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>{attemptsForfeited}</strong>.
+				remaining {attemptsForfeited === 1 ? "attempt" : "attempts"}
+				and your current streak of <strong className="font-bold text-dark">{currentStreak}</strong>.
 			</span>
 		);
 	return (
