@@ -1,26 +1,23 @@
 "use client";
 
 import { alphabet } from "../../api/_lib/alphabet";
-import {
-	CELL_DROP_PREFIX,
-	SLAM_BONUS_POINTS,
-	TILE_DRAG_PREFIX,
-} from "@/game-config/constants";
-import type {
-	Axis,
-	BoardTemplate,
-	CellId,
-	OngoingAttemptTile,
-	RackTileId,
-	ScoreBreakdown,
-} from "@/context/types";
+import { CELL_DROP_PREFIX, SLAM_BONUS_POINTS, TILE_DRAG_PREFIX } from "@/game-config/constants";
+import type { Axis, BoardTemplate, CellId, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/context/types";
 
-export type PlacementValidation = {
-	isSubmittable: boolean;
-	axis: Axis | null;
-	candidateWord: string;
-	orderedTiles: OngoingAttemptTile[];
-};
+export type PlacementValidation =
+	| {
+			isSubmittable: true;
+			axis: Axis;
+			candidateWord: string;
+			orderedTiles: OngoingAttemptTile[];
+	  }
+	| {
+			isSubmittable: false;
+			axis: Axis | null;
+			candidateWord: string;
+			orderedTiles: OngoingAttemptTile[];
+			reason: "too_short" | "no_center" | "not_contiguous" | "mixed_axis";
+	  };
 
 export const isStreakContinuous = (puzzleId: number, lastCompletedPuzzleId?: number): boolean => {
 	if (typeof lastCompletedPuzzleId !== "number") return true;
@@ -85,7 +82,7 @@ export const calculateDraftScore = (
 
 export const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board: BoardTemplate): PlacementValidation => {
 	if (placedTiles.length < 2) {
-		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
+		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [], reason: "too_short" };
 	}
 
 	const tilesWithCoordinates = placedTiles
@@ -96,10 +93,10 @@ export const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board:
 		.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
 	if (!tilesWithCoordinates.some(el => el.isCenter)) {
-		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
+		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [], reason: "no_center" };
 	}
 	if (tilesWithCoordinates.length < 2) {
-		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
+		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [], reason: "too_short" };
 	}
 
 	const uniqueRows = new Set(tilesWithCoordinates.map(entry => entry.row));
@@ -107,7 +104,7 @@ export const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board:
 
 	const axis: Axis | null = uniqueRows.size === 1 ? "horizontal" : uniqueColumns.size === 1 ? "vertical" : null;
 	if (!axis) {
-		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [] };
+		return { isSubmittable: false, axis: null, candidateWord: "", orderedTiles: [], reason: "mixed_axis" };
 	}
 
 	const orderedByAxis = [...tilesWithCoordinates].sort((a, b) => (axis === "horizontal" ? a.column - b.column : a.row - b.row));
@@ -118,7 +115,13 @@ export const getPlacementValidation = (placedTiles: OngoingAttemptTile[], board:
 	const isContiguous = maxCoordinate - minCoordinate + 1 === orderedByAxis.length;
 
 	if (!isContiguous) {
-		return { isSubmittable: false, axis, candidateWord: "", orderedTiles: orderedByAxis.map(entry => entry.tile) };
+		return {
+			isSubmittable: false,
+			axis,
+			candidateWord: "",
+			orderedTiles: orderedByAxis.map(entry => entry.tile),
+			reason: "not_contiguous",
+		};
 	}
 
 	const orderedTiles = orderedByAxis.map(entry => entry.tile);

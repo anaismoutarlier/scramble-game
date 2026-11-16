@@ -7,6 +7,14 @@ import { Button } from "../button";
 import { gameDndIds, useGameContext } from "@/context/GameContext";
 import { cn } from "@/lib/cn";
 import { ChevronsDown } from "lucide-react";
+import { toast } from "../ui/toast";
+
+const hintMessages = {
+	too_short: "Nice try! A word needs at least 2 letters to score.",
+	no_center: "Every word starts at the center—anchor your letters there!",
+	not_contiguous: "Your tiles need to stay touching like a proper word chain.",
+	mixed_axis: "One straight line only—keep it tidy and connected!",
+};
 
 const SubmitTray = () => {
 	const { progress, placementValidation, onSubmitCurrentAttempt, recallRackTiles } = useGameContext();
@@ -18,6 +26,15 @@ const SubmitTray = () => {
 	};
 
 	const hasPlacedTiles = progress.currentAttempt?.placedTiles && progress.currentAttempt.placedTiles.length > 0;
+	const placementInvalidReason = !placementValidation.isSubmittable ? placementValidation.reason : null;
+	const submitButtonDisabled = !placementValidation.isSubmittable || isSubmitting;
+
+	const handleHintMessage = () => {
+		if (!placementInvalidReason) return;
+		const hintMessage = hintMessages[placementInvalidReason];
+		toast.add({ description: hintMessage, type: "warning" });
+	};
+
 	return (
 		<div className="inline-flex flex-col px-4 justify-start items-center gap-3 sm:gap-5">
 			<div className="inline-flex justify-center items-center gap-3">
@@ -27,16 +44,21 @@ const SubmitTray = () => {
 					{progress.currentAttempt?.score.total ?? 0} points
 				</div>
 			</div>
-			<div className="w-full flex gap-2">
-				<Button className="w-full sm:max-w-sm" disabled={!placementValidation.isSubmittable || isSubmitting} onClick={handleSubmit}>
-					Play
-				</Button>
+			<div className="w-full flex gap-1">
+				<div className="w-full sm:max-w-sm relative">
+					{placementInvalidReason && submitButtonDisabled && (
+						<button className="opacity-0 absolute inset-0 w-full h-full" aria-hidden onClick={handleHintMessage} />
+					)}
+					<Button className="w-full" disabled={submitButtonDisabled} onClick={handleSubmit}>
+						Play
+					</Button>
+				</div>
 				{hasPlacedTiles && (
 					<Button
 						aria-label="Recall all played tiles"
 						icon={ChevronsDown}
 						variant="outlined"
-						className="px-4 !font-normal"
+						className="px-4 !font-normal [&_span]:hidden sm:[&_span]:block"
 						onClick={recallRackTiles}
 						iconProps={{ size: 16, strokeWidth: 1.4 }}
 						disabled={isSubmitting || !hasPlacedTiles}

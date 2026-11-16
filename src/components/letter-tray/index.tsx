@@ -17,7 +17,7 @@ export function LetterTray() {
 	});
 
 	return (
-		<section className="w-full max-w-full rounded-2xl pb-5 flex flex-col items-center justify-center gap-1 sm:gap-3">
+		<section className="w-full max-w-full rounded-2xl pb-5 flex flex-col items-center justify-center gap-3">
 			<header className="w-full flex items-center justify-between">
 				<h2 className="text-center text-light text-xs sm:text-sm md:text-base font-bold font-sans">Your Letters</h2>
 				<Button

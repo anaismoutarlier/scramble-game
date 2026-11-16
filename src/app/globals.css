@@ -184,3 +184,15 @@ body {
 .floatingchat-container-wrap span {
 	display: none !important;
 }
+
+@media (max-width: 767px) {
+	body [id*="kofi"],
+	body [class*="kofi"],
+	body [class*="floatingchat"] {
+		display: none !important;
+	}
+}
+
+body [id^="kofi-widget-overlay"] {
+	display: none !important;
+}

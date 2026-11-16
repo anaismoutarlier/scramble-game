@@ -89,6 +89,7 @@ const generateShareMessage = ({
 		text += `${wordEmojiDisplay}`;
 	}
 
+	text += `\n\nwww.scrambleworld.com`;
 	return text;
 };
 

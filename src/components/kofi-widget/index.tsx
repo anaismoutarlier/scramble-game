@@ -18,9 +18,26 @@ export function KofiWidget() {
 
 			window.kofiWidgetOverlay.draw("anaismoutarlier", {
 				type: "floating-chat",
+				"floating-chat.donateButton.text": "",
 				"floating-chat.donateButton.background-color": "#c5fcca",
 				"floating-chat.donateButton.text-color": "#684756",
 			});
+
+			const iframe = document.querySelector<HTMLIFrameElement>("iframe.floatingchat-container");
+			const iframeDoc = iframe?.contentDocument;
+			if (iframeDoc) {
+				const style = iframeDoc.createElement("style");
+				style.textContent = `
+	  	body [id^="kofi-widget-overlay"] span {
+			display: none !important;
+		}
+
+		body [id^="kofi-widget-overlay"]:hover {
+		background-color: color-mix(in oklab, #c5fcca 70%, #fff9f9) !important;
+		}
+ 	`;
+				iframeDoc.head.appendChild(style);
+			}
 		}
 	}, []);
 
@@ -28,5 +45,12 @@ export function KofiWidget() {
 		initKofi();
 	}, [initKofi]);
 
-	return <Script id="kofi-overlay-script" src="https://ko-fi.com" strategy="afterInteractive" onReady={initKofi} />;
+	return (
+		<Script
+			id="kofi-overlay-script"
+			src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"
+			strategy="afterInteractive"
+			onReady={initKofi}
+		/>
+	);
 }

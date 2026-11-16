@@ -36,13 +36,17 @@ export const HOW_TO_PLAY_RULES: HowToPlayRule[] = [
 		order: 3,
 		segments: [
 			{
-				text: "Use your 7 tiles to create 5 words and earn points. Each word must be at least 2 letters long and each tile can only be used once per word.",
+				text: "Use your 7 tiles to create 5 words and earn points. Each word is added to your cumulative score.",
 			},
 		],
 	},
 	{
 		order: 4,
-		segments: [{ text: "Careful, each unique word may only be played once, even if there are multiple ways to play it on the board." }],
+		segments: [
+			{
+				text: "Words must be at least 2 letters long and each tile can only be used once per word. Careful, each unique word may only be played once, even if there are multiple ways to play it on the board.",
+			},
+		],
 	},
 	{
 		order: 5,
@@ -61,16 +65,6 @@ export const HOW_TO_PLAY_RULES: HowToPlayRule[] = [
 	},
 	{
 		order: 6,
-		segments: [
-			{ text: "You have " },
-			{ text: "5 chances", emphasis: true },
-			{
-				text: " to create a word. Each word is added to your cumulative score. You can give up after your first submission, but any remaining attempts are forfeited and your current streak resets to 0.",
-			},
-		],
-	},
-	{
-		order: 7,
 		segments: [
 			{ text: "Your total score is compared to the " },
 			{ text: "best possible score", emphasis: true },

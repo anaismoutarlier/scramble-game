@@ -70,7 +70,7 @@ export function MobileHeader({
 			>
 				<button type="button" aria-label="Close menu" onClick={() => setIsMenuOpen(false)} className={`absolute inset-0`} />
 				<aside
-					className={`absolute top-[100px] right-0 w-[220px] h-[calc(100dvh-89px)] bg-dark/90 px-5 py-10 flex justify-between flex-col items-end gap-4 transition-transform duration-300 ease-out ${
+					className={`absolute top-[100px] right-0 w-[220px] h-[calc(100dvh-89px)] bg-dark/98 px-5 py-10 border-l-[0.2px] border-light/2 flex justify-between flex-col items-end gap-4 transition-transform duration-300 ease-out ${
 						isMenuOpen ? "translate-x-0" : "translate-x-full"
 					}`}
 				>

@@ -22,6 +22,10 @@ export const metadata: Metadata = {
 	title: "Scramble",
 	description:
 		"Seven letters. Five chances. One daily challenge. Put your vocabulary and strategy to the test! Build words across the board, make every letter count, and see how close you can get to the day's perfect score. A new puzzle awaits every day. How high can you score?",
+	openGraph: {
+		images: [{ url: "/icon.svg" }],
+	},
+	metadataBase: "https://www.scrambleworld.com",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
