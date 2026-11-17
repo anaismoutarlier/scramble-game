@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { useGameContext } from "@/context/GameContext";
 import { Review } from "./ReviewView";
 import { ResultsMainContent } from "./ResultsView";
-import type { TopScoringWord } from "@/context/types";
 import { getResults } from "@/actions/getResults";
 
 export function ResultsLayout() {

@@ -76,7 +76,7 @@ export function ReviewBoard({
 			</h3>
 			<div
 				className={cn(
-					"relative border border-[0.5px] rounded-3xl p-3 sm:p-4 md:p-[18px] [--tile-size:clamp(26px,calc(72vw/7),63px)]",
+					"relative border border-[0.5px] rounded-3xl p-3 sm:p-4 md:p-[18px] [--tile-size:clamp(26px,calc(72vw/7),46px)]",
 					isLightScheme ? "border-dark/20" : "border-light/60",
 				)}
 			>

@@ -81,7 +81,7 @@ export function BoardTile({
 				}
 			}}
 			className={cn(
-				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center max-[400px]:p-[1.5px] p-[3px] select-none",
+				"h-[var(--tile-size)] w-[var(--tile-size)] flex justify-center items-center p-[clamp(1px,var(--tile-size)*0.04,3px)] select-none",
 				isInteractive && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/70",
 				connectedRadiusClass,
 				placedLetter && !isIsolatedPlacement ? "bg-tile-letter-surface" : "",
@@ -92,33 +92,36 @@ export function BoardTile({
 				className={cn(
 					"w-full h-full relative flex justify-center items-center uppercase pointer-events-none",
 					placedLetter
-						? `max-[400px]:outline-[0.5px] max-[400px]:-outline-offset-[0.5px] -outline-offset-1 outline-1 md:outline-[1.5px] md:-outline-offset-[1.5px] ${outlineColor} bg-tile-letter-surface`
+						? `outline-[clamp(0.5px,var(--tile-size)*0.04,1.3px)] outline-offset-[calc(clamp(0.5px,var(--tile-size)*0.04,1.3px)/2*-1)] ${outlineColor} bg-tile-letter-surface`
 						: bgColor,
 					placedLetter ? "text-dark" : textColor,
-					placedLetter ? "rounded-lg" : "rounded-sm",
+					placedLetter ? "rounded-md" : "rounded-sm",
 				)}
 			>
 				{placedLetter && (
 					<>
-						<span className="text-dark absolute top-0 sm:top-1 left-1 font-semibold text-[6px] sm:text-[10px]">
+						<span className="text-dark absolute top-0 sm:top-1 left-1 font-semibold text-[clamp(6px,var(--tile-size)*0.16,10px)]">
 							{tileValue}
 						</span>
 						<span
-							className={cn("uppercase absolute top-0 sm:top-1 font-semibold right-1 text-[6px] sm:text-[10px]", textColor)}
+							className={cn(
+								"uppercase absolute top-0 sm:top-1 font-semibold right-1 text-[clamp(6px,var(--tile-size)*0.16,10px)]",
+								textColor,
+							)}
 						>
 							{bonus}
 						</span>
 						{isCenter && (
-							<div className="absolute bottom-0 sm:bottom-1 left-0 w-full flex justify-center">
-								<span className="text-[6px] md:text-[9px]">★</span>
+							<div className="absolute bottom-0 left-0 w-full flex justify-center">
+								<span className="text-[clamp(6px,var(--tile-size)*0.16,9px)]">★</span>
 							</div>
 						)}
 					</>
 				)}
 				{placedLetter ? (
-					<span className="font-semibold text-xs sm:text-sm md:text-base lg:text-xl">{placedLetter}</span>
+					<span className="font-semibold text-[clamp(12px,var(--tile-size)*0.3,24px)]">{placedLetter}</span>
 				) : (
-					<span className="font-oi max-[300px]:text-[6px] text-[9px] md:text-xs xl:text-sm">{isCenter ? "★" : bonus}</span>
+					<span className="font-oi text-[clamp(6px,var(--tile-size)*0.2,16px)]">{isCenter ? "★" : bonus}</span>
 				)}
 			</div>
 		</div>

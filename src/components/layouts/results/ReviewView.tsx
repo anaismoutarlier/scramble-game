@@ -116,13 +116,13 @@ export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps
 				<span className="text-base leading-none font-sans">Go back</span>
 			</button>
 			<section className="w-full max-w-5xl items-center mx-auto flex flex-col gap-8 sm:gap-10">
-				<h1 className="inline-flex flex-col justify-center items-center">
+				<h1 className="max-w-5xl inline-flex flex-col justify-center items-center">
 					<span className="text-primary text-center text-sm sm:text-base lg:text-lg font-semibold font-sans tracking-wider uppercase">
 						{displayDate}
 					</span>
 					<span className="text-light text-center text-base sm:text-lg lg:text-xl font-bold font-sans">Day #{puzzle.id}</span>
 				</h1>
-				<div className="w-full gap-4 px-2 mb-6 md:px-0 flex flex-col gap-3 max-w-4xl">
+				<div className="max-w-5xl w-full gap-4 px-2 mb-6 md:px-0 flex flex-col gap-3 max-w-4xl">
 					<h2 className="text-light text-xl font-bold text-left font-sans">A few stats . . .</h2>
 					<div className="w-full grid max-[400px]:grid-cols-1 grid-cols-2 gap-4 md:grid-cols-4">
 						{statCards.map((s, i) => (
@@ -130,11 +130,11 @@ export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps
 						))}
 					</div>
 				</div>
-				<div className="w-full flex flex-col gap-3 items-center">
+				<div className="w-full max-w-3xl rounded-xl border border-[0.5px] border-primary/20 px-2 md:px-4 pt-6 pb-3.5 sm:px-10 sm:pt-8 sm:pb-5.5 flex flex-col gap-8 sm:gap-10 md:gap-6 items-center">
 					<div className="w-full flex justify-center">
 						<h2 className="text-light text-xl font-bold font-sans">Your words</h2>
 					</div>
-					<div className="w-full max-w-4xl h-px bg-primary/50" />
+					<div className="w-full max-w-[calc(100%-24px)] sm:max-w-4xl h-px bg-primary/50" />
 					<p className="text-center text-light text-xs max-w-3xl">
 						Here are your attempts today, in order of how many points you got. Take a look at the highest scoring words of the
 						day below. How close did you get today?
@@ -186,13 +186,13 @@ export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps
 					</div>
 				</div>
 
-				<div className="w-full bg-light rounded-xl px-2 md:px-4 pt-6 pb-3.5 sm:px-10 sm:pt-8 sm:pb-5.5 flex items-center flex-col gap-3">
+				<div className="w-full max-w-3xl bg-light rounded-xl px-2 md:px-4 pt-6 pb-3.5 sm:px-10 sm:pt-8 sm:pb-5.5 flex items-center flex-col gap-3">
 					<div className="mx-2 md:mx-0 w-full flex justify-center">
 						<h2 className="text-dark text-base text-center md:text-xl leading-none font-bold font-sans">
 							Today&apos;s highest scores
 						</h2>
 					</div>
-					<div className="w-full h-px max-w-4xl bg-primary/70" />
+					<div className="w-full h-px max-w-[calc(100%-24px)] sm:max-w-4xl bg-primary/70" />
 					<p className="text-center text-xs max-w-3xl">
 						Discover the highest scoring words for today&apos;s puzzle. Some words can be played in multiple locations on the
 						board. As you scroll through, think about how to best place your words in the future. Did you find the best

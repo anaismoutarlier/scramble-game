@@ -89,7 +89,7 @@ const generateShareMessage = ({
 		text += `${wordEmojiDisplay}`;
 	}
 
-	text += `\n\nwww.scrambleworld.com`;
+	// text += `\n\nwww.scrambleworld.com`;
 	return text;
 };
 
@@ -132,6 +132,7 @@ export const ResultsMainContent = ({
 		const payload = {
 			title: "ScrambleGame",
 			text: shareMessage,
+			url: "www.scrambleworld.com",
 		};
 
 		if (navigator.share) {
