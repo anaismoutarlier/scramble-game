@@ -16,6 +16,7 @@ import { CELL_DROP_PREFIX, ENABLE_CLICK_PLACEMENT, RACK_TILE_DND_TYPE, TILE_DRAG
 import { useGameProgressActions } from "@/context/useGameProgressActions";
 import { usePuzzleOfTheDay } from "@/context/usePuzzleOfTheDay";
 import { useRackBoardInteractions } from "@/context/useRackBoardInteractions";
+import moment from "moment";
 
 type GameContextValue = {
 	puzzle: PuzzleDefinition;
@@ -37,6 +38,7 @@ type GameContextValue = {
 	onDragEnd: (event: DragEndEvent) => void;
 	onSubmitCurrentAttempt: () => void;
 	recallRackTiles: () => void;
+	displayDate: string;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -152,6 +154,8 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 		[currentAttemptScore, placedTiles, savedProgress],
 	);
 
+	const displayDate = puzzle ? moment(puzzle.date).format("MMMM DD[th], YYYY") : "";
+
 	const value = useMemo<GameContextValue>(
 		() => ({
 			puzzle,
@@ -173,6 +177,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			rackTiles,
 			onShuffleRackTiles,
 			recallRackTiles,
+			displayDate,
 		}),
 		[
 			activeDragLetter,
@@ -193,6 +198,7 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 			selectedRackTileId,
 			onShuffleRackTiles,
 			recallRackTiles,
+			displayDate,
 		],
 	);
 

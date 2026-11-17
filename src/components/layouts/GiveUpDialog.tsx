@@ -18,17 +18,18 @@ export function GiveUpDialog({ open, isGivingUp, attemptsForfeited, onOpenChange
 	let desc = (
 		<span>
 			If you give up now, you will lose your{" "}
-			<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>{attemptsForfeited}</strong>. remaining{" "}
-			{attemptsForfeited === 1 ? "attempt" : "attempts"}
+			<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>{attemptsForfeited}</strong> remaining{" "}
+			{attemptsForfeited === 1 ? "attempt" : "attempts"}.
 		</span>
 	);
 	if (currentStreak > 0)
 		desc = (
 			<span>
 				If you give up now, you will lose your{" "}
-				<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>{attemptsForfeited}</strong>.
+				<strong className={cn("font-bold", attemptsForfeited > 0 ? "text-dark" : "text-accent")}>{attemptsForfeited}</strong>
 				remaining {attemptsForfeited === 1 ? "attempt" : "attempts"}
-				and your current streak of <strong className="font-bold text-dark">{currentStreak}</strong>.
+				and your current streak of <strong className="font-bold text-dark">{currentStreak}</strong> will reset to{" "}
+				<strong className="font-bold text-dark">0</strong>.
 			</span>
 		);
 	return (

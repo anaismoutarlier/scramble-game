@@ -5,14 +5,16 @@ import { ChevronLeft, ChevronRight, MoveLeft } from "lucide-react";
 import { useGameContext } from "@/context/GameContext";
 import { ReviewBoard } from "./components/ReviewBoard";
 import { TopScoringWord } from "@/context/types";
+import { StatCard } from "./components/StatCard";
 
 type ReviewProps = {
 	toggleView: (v: "results" | "review") => void;
 	bestPossibleWords: TopScoringWord[];
+	statCards: { title: string; text: string; score?: { total: number; possible: number } }[];
 };
 
-export function Review({ toggleView, bestPossibleWords }: ReviewProps) {
-	const { puzzle, progress } = useGameContext();
+export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps) {
+	const { puzzle, progress, displayDate } = useGameContext();
 	const attemptsScrollContainerRef = useRef<HTMLDivElement | null>(null);
 	const bestWordsScrollContainerRef = useRef<HTMLDivElement | null>(null);
 	const [selectedPlacementIndexByWord, setSelectedPlacementIndexByWord] = useState<Record<string, number>>({});
@@ -103,18 +105,31 @@ export function Review({ toggleView, bestPossibleWords }: ReviewProps) {
 	};
 
 	return (
-		<main className="w-full min-h-[calc(100vh-100px)] px-2 sm:px-6 lg:px-10 py-12 sm:py-16 md:py-20">
-			<section className="w-full max-w-[980px] mx-auto flex flex-col gap-8 sm:gap-10">
-				<button
-					type="button"
-					onClick={() => toggleView("results")}
-					aria-label="Return to your results"
-					className="absolute top-3 left-3 sm:top-6 sm:left-6 w-fit inline-flex cursor-pointer items-center gap-2.5 pb-0.5 border-b border-light text-light"
-				>
-					<MoveLeft className="size-4" strokeWidth={1.4} aria-hidden="true" />
-					<span className="text-base leading-none font-sans">Go back</span>
-				</button>
-
+		<main className="w-full min-h-[calc(100vh-100px)] px-2 sm:px-6 lg:px-10 py-16 md:py-20">
+			<button
+				type="button"
+				onClick={() => toggleView("results")}
+				aria-label="Return to your results"
+				className="absolute top-3 left-3 sm:top-6 sm:left-6 w-fit inline-flex cursor-pointer items-center gap-2.5 pb-0.5 border-b border-light text-light"
+			>
+				<MoveLeft className="size-4" strokeWidth={1.4} aria-hidden="true" />
+				<span className="text-base leading-none font-sans">Go back</span>
+			</button>
+			<section className="w-full max-w-5xl items-center mx-auto flex flex-col gap-8 sm:gap-10">
+				<h1 className="inline-flex flex-col justify-center items-center">
+					<span className="text-primary text-center text-sm sm:text-base lg:text-lg font-semibold font-sans tracking-wider uppercase">
+						{displayDate}
+					</span>
+					<span className="text-light text-center text-base sm:text-lg lg:text-xl font-bold font-sans">Day #{puzzle.id}</span>
+				</h1>
+				<div className="w-full gap-4 px-2 mb-6 md:px-0 flex flex-col gap-3 max-w-4xl">
+					<h2 className="text-light text-xl font-bold text-left font-sans">A few stats . . .</h2>
+					<div className="w-full grid max-[400px]:grid-cols-1 grid-cols-2 gap-4 md:grid-cols-4">
+						{statCards.map((s, i) => (
+							<StatCard key={`stat-card-${i}`} {...s} />
+						))}
+					</div>
+				</div>
 				<div className="w-full flex flex-col gap-3 items-center">
 					<div className="w-full flex justify-center">
 						<h2 className="text-light text-xl font-bold font-sans">Your words</h2>
