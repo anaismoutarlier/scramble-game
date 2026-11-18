@@ -220,7 +220,7 @@ export const ResultsMainContent = ({
 					</div>
 				</div>
 
-				<div className="w-full flex flex-col gap-2.5">
+				<div className="w-full flex flex-col gap-2.5 pt-4 pb-6">
 					<Button className="w-full" theme="light" icon={Share2} onClick={handleShare}>
 						Share Results
 					</Button>

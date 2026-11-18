@@ -192,7 +192,3 @@ body {
 		display: none !important;
 	}
 }
-
-body [id^="kofi-widget-overlay"] {
-	display: none !important;
-}

@@ -131,14 +131,14 @@ export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps
 					</div>
 				</div>
 				<div className="w-full max-w-3xl rounded-xl border border-[0.5px] border-primary/20 px-2 md:px-4 pt-6 pb-3.5 sm:px-10 sm:pt-8 sm:pb-5.5 flex flex-col gap-8 sm:gap-10 md:gap-6 items-center">
-					<div className="w-full flex justify-center">
-						<h2 className="text-light text-xl font-bold font-sans">Your words</h2>
+					<div className="w-full flex flex-col gap-3 items-center">
+						<h2 className="text-light text-xl text-center font-bold font-sans">Your words</h2>
+						<div className="w-full max-w-[calc(100%-24px)] sm:max-w-4xl h-px bg-primary/50" />
+						<p className="text-center text-light text-xs max-w-3xl">
+							Here are your attempts today, in order of how many points you got. Take a look at the highest scoring words of
+							the day below. How close did you get today?
+						</p>
 					</div>
-					<div className="w-full max-w-[calc(100%-24px)] sm:max-w-4xl h-px bg-primary/50" />
-					<p className="text-center text-light text-xs max-w-3xl">
-						Here are your attempts today, in order of how many points you got. Take a look at the highest scoring words of the
-						day below. How close did you get today?
-					</p>
 
 					<div className="w-full relative">
 						<button
@@ -186,18 +186,18 @@ export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps
 					</div>
 				</div>
 
-				<div className="w-full max-w-3xl bg-light rounded-xl px-2 md:px-4 pt-6 pb-3.5 sm:px-10 sm:pt-8 sm:pb-5.5 flex items-center flex-col gap-3">
-					<div className="mx-2 md:mx-0 w-full flex justify-center">
+				<div className="w-full max-w-3xl bg-light rounded-xl px-2 md:px-4 pt-6 pb-3.5 sm:px-10 sm:pt-8 sm:pb-5.5 flex items-center flex-col gap-8 sm:gap-10 md:gap-6">
+					<div className="w-full flex flex-col gap-3 items-center">
 						<h2 className="text-dark text-base text-center md:text-xl leading-none font-bold font-sans">
 							Today&apos;s highest scores
 						</h2>
+						<div className="w-full h-px max-w-[calc(100%-24px)] sm:max-w-4xl bg-primary/70" />
+						<p className="text-center text-xs max-w-3xl">
+							Discover the highest scoring words for today&apos;s puzzle. Some words can be played in multiple locations on
+							the board. As you scroll through, think about how to best place your words in the future. Did you find the best
+							placement?
+						</p>
 					</div>
-					<div className="w-full h-px max-w-[calc(100%-24px)] sm:max-w-4xl bg-primary/70" />
-					<p className="text-center text-xs max-w-3xl">
-						Discover the highest scoring words for today&apos;s puzzle. Some words can be played in multiple locations on the
-						board. As you scroll through, think about how to best place your words in the future. Did you find the best
-						placement?
-					</p>
 
 					<div className="w-full relative">
 						<button
