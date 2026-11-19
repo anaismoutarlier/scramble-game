@@ -11,9 +11,8 @@ export const generateRackLetters = async (): Promise<{ letters: string[7]; dicti
 		.split("\n")
 		.map(l => l.trim())
 		.filter(Boolean);
-	const usedRacksLen = await redis.llen("racks:all");
-	const usedRacks = await redis.lrange("racks:all", 0, usedRacksLen);
-	const usedRacksSet = new Set(usedRacks);
+	const usedRacks = await redis.lrange("racks:all", 0, -1);
+	const usedRacksSet = new Set(usedRacks.map(l => l.split("").sort().join("")));
 	const usedIndices = new Set();
 	let i = getRandomInt(0, trayLetterList.length);
 	let rackLetters: string[7] = "";
@@ -27,7 +26,8 @@ export const generateRackLetters = async (): Promise<{ letters: string[7]; dicti
 			usedIndices.add(i);
 			i = getRandomInt(0, trayLetterList.length);
 		}
-		if (!usedRacksSet.has(tmpLetters)) rackLetters = tmpLetters;
+		const orderedTmpLetters = tmpLetters.split("").sort().join("");
+		if (!usedRacksSet.has(orderedTmpLetters)) rackLetters = tmpLetters;
 		else {
 			usedIndices.add(i);
 			i = getRandomInt(0, trayLetterList.length);
