@@ -20,9 +20,13 @@ const SubmitTray = () => {
 	const { progress, placementValidation, onSubmitCurrentAttempt, recallRackTiles } = useGameContext();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const handleSubmit = async () => {
-		setIsSubmitting(true);
-		await new Promise(() => onSubmitCurrentAttempt());
-		setIsSubmitting(false);
+		try {
+			setIsSubmitting(true);
+			await onSubmitCurrentAttempt();
+		} catch {
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	const hasPlacedTiles = progress.currentAttempt?.placedTiles && progress.currentAttempt.placedTiles.length > 0;

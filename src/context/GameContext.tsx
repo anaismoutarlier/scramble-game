@@ -36,7 +36,7 @@ type GameContextValue = {
 	onBoardCellClick: (cellId: CellId) => void;
 	onDragStart: (event: DragStartEvent) => void;
 	onDragEnd: (event: DragEndEvent) => void;
-	onSubmitCurrentAttempt: () => void;
+	onSubmitCurrentAttempt: () => Promise<void>;
 	recallRackTiles: () => void;
 	displayDate: string;
 };

@@ -110,7 +110,7 @@ export function Review({ toggleView, bestPossibleWords, statCards }: ReviewProps
 				type="button"
 				onClick={() => toggleView("results")}
 				aria-label="Return to your results"
-				className="absolute top-3 left-3 sm:top-6 sm:left-6 w-fit inline-flex cursor-pointer items-center gap-2.5 pb-0.5 border-b border-light text-light"
+				className="absolute top-3 left-3 sm:top-6 sm:left-6 md:top-10 md:left-10 w-fit inline-flex cursor-pointer items-center gap-2.5 pb-0.5 border-b border-light text-light"
 			>
 				<MoveLeft className="size-4" strokeWidth={1.4} aria-hidden="true" />
 				<span className="text-base leading-none font-sans">Go back</span>
