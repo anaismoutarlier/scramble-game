@@ -1,4 +1,8 @@
+"use client";
+import { useId } from "react";
+
 export function StatCard({ title, text, score }: { title: string; text: string; score?: { total: number; possible: number } }) {
+	const id = useId();
 	return (
 		<article className="size-lf-stretch px-4 py-4 bg-dark rounded-lg border border-[0.6px] border-primary inline-flex flex-col justify-between items-start gap-4 md:gap-8 overflow-hidden">
 			<div className="w-full grid grid-cols-[auto_1fr] gap-3 sm:gap-1 align-center items-center sm:items-start sm:flex sm:flex-col">
@@ -9,9 +13,9 @@ export function StatCard({ title, text, score }: { title: string; text: string; 
 				<div className="self-stretch h-1 inline-flex justify-start items-start gap-1 overflow-hidden">
 					{Array.from({ length: score.possible }, (_, i) => {
 						return i < score.total ? (
-							<div className="flex-1 h-1 bg-primary rounded-xs" />
+							<div className="flex-1 h-1 bg-primary rounded-xs" key={`stat-card-${id}-counter-${i}`} />
 						) : (
-							<div className="flex-1 h-1 opacity-20 bg-primary rounded-xs" />
+							<div className="flex-1 h-1 opacity-20 bg-primary rounded-xs" key={`stat-card-counter-${id}-${i}`} />
 						);
 					})}
 				</div>

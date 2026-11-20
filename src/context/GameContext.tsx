@@ -137,9 +137,8 @@ function GameProviderState({ children, puzzle }: GameProviderStateProps) {
 		savedProgress,
 		setSavedProgress,
 		setStreakStorage,
-		placementValidation,
-		currentAttemptScore,
 		resetInteractionState,
+		placedTiles,
 	});
 
 	const progress = useMemo<GameProgress>(

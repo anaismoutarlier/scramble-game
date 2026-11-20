@@ -46,7 +46,9 @@ export function Button({
 				textColor,
 				borderColor,
 				className,
-				isOutlined ? "disabled:border-disabled-surface disabled:text-disabled-surface" : "disabled:bg-disabled-surface",
+				isOutlined
+					? "disabled:border-disabled-surface disabled:text-disabled-surface disabled:bg-transparent"
+					: "disabled:bg-disabled-surface",
 			)}
 		>
 			{Icon && <Icon {...(iconProps ?? {})} />}

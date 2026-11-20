@@ -1,9 +1,8 @@
 import { act, renderHook } from "@testing-library/react";
 import { MAX_ATTEMPTS } from "@/game-config/constants";
 import { useGameProgressActions } from "@/context/useGameProgressActions";
-import type { PlacementValidation } from "@/context/game-domain";
 import type { StreakStorage, StoredProgress } from "@/context/game-storage";
-import type { ScoreBreakdown } from "@/context/types";
+import type { OngoingAttemptTile, ScoreBreakdown } from "@/context/types";
 
 const checkWordMock = vi.fn();
 const toastAddMock = vi.fn();
@@ -53,17 +52,6 @@ const baseProgress: StoredProgress = {
 	updatedAt: "2026-11-16T00:00:00.000Z",
 };
 
-const baseValidation: PlacementValidation = {
-	isSubmittable: true,
-	axis: "horizontal",
-	candidateWord: "cat",
-	orderedTiles: [
-		{ rackTileId: "t1", cellId: "r0c0", letter: "c" },
-		{ rackTileId: "t2", cellId: "r0c1", letter: "a" },
-		{ rackTileId: "t3", cellId: "r0c2", letter: "t" },
-	],
-};
-
 const baseScore: ScoreBreakdown = {
 	baseLetterScore: 9,
 	letterMultiplierHits: [],
@@ -74,11 +62,26 @@ const baseScore: ScoreBreakdown = {
 	total: 9,
 };
 
-const setup = (overrides?: Partial<{
-	savedProgress: StoredProgress;
-	placementValidation: PlacementValidation;
-	currentAttemptScore: ScoreBreakdown;
-}>) => {
+const basePlacedTiles: OngoingAttemptTile[] = [
+	{ rackTileId: "t1", cellId: "r0c0", letter: "c" },
+	{ rackTileId: "t2", cellId: "r0c1", letter: "a" },
+	{ rackTileId: "t3", cellId: "r0c2", letter: "t" },
+];
+
+const successfulValidation = {
+	isSubmittable: true as const,
+	axis: "horizontal" as const,
+	candidateWord: "cat",
+	orderedTiles: basePlacedTiles,
+	score: baseScore,
+};
+
+const setup = (
+	overrides?: Partial<{
+		savedProgress: StoredProgress;
+		placedTiles: OngoingAttemptTile[];
+	}>,
+) => {
 	const setSavedProgress = vi.fn();
 	const setStreakStorage = vi.fn();
 	const resetInteractionState = vi.fn();
@@ -88,9 +91,8 @@ const setup = (overrides?: Partial<{
 			savedProgress: overrides?.savedProgress ?? baseProgress,
 			setSavedProgress,
 			setStreakStorage,
-			placementValidation: overrides?.placementValidation ?? baseValidation,
-			currentAttemptScore: overrides?.currentAttemptScore ?? baseScore,
 			resetInteractionState,
+			placedTiles: overrides?.placedTiles ?? basePlacedTiles,
 		}),
 	);
 
@@ -121,7 +123,8 @@ describe("useGameProgressActions", () => {
 		expect(setSavedProgress).not.toHaveBeenCalled();
 	});
 
-	it("warns for duplicate words and skips validation call", async () => {
+	it("warns for duplicate words and skips progress update", async () => {
+		checkWordMock.mockResolvedValueOnce(successfulValidation);
 		const { result, setSavedProgress } = setup({
 			savedProgress: {
 				...baseProgress,
@@ -133,26 +136,50 @@ describe("useGameProgressActions", () => {
 			await result.current.onSubmitCurrentAttempt();
 		});
 
-		expect(checkWordMock).not.toHaveBeenCalled();
+		expect(checkWordMock).toHaveBeenCalledTimes(1);
 		expect(setSavedProgress).not.toHaveBeenCalled();
 		expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({ type: "warning" }));
 	});
 
 	it("shows error toast when dictionary validation fails", async () => {
-		checkWordMock.mockResolvedValueOnce(false);
+		checkWordMock.mockResolvedValueOnce({
+			isSubmittable: false,
+			reason: "invalid_word",
+			axis: "horizontal",
+			candidateWord: "cat",
+			orderedTiles: basePlacedTiles,
+		});
 		const { result, setSavedProgress } = setup();
 
 		await act(async () => {
 			await result.current.onSubmitCurrentAttempt();
 		});
 
-		expect(checkWordMock).toHaveBeenCalledWith("cat", baseProgress.puzzleId);
+		expect(checkWordMock).toHaveBeenCalledWith({ puzzleId: baseProgress.puzzleId, placedTiles: basePlacedTiles });
 		expect(setSavedProgress).not.toHaveBeenCalled();
 		expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
 	});
 
+	it("shows error toast when rack tile validation fails", async () => {
+		checkWordMock.mockResolvedValueOnce({
+			isSubmittable: false,
+			reason: "invalid_rack_tiles",
+			axis: null,
+			candidateWord: "",
+			orderedTiles: [],
+		});
+		const { result, setSavedProgress } = setup();
+
+		await act(async () => {
+			await result.current.onSubmitCurrentAttempt();
+		});
+
+		expect(setSavedProgress).not.toHaveBeenCalled();
+		expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({ title: "Invalid tile placement" }));
+	});
+
 	it("records a successful attempt and notifies success", async () => {
-		checkWordMock.mockResolvedValueOnce(true);
+		checkWordMock.mockResolvedValueOnce(successfulValidation);
 		const { result, setSavedProgress, resetInteractionState } = setup();
 
 		await act(async () => {
@@ -171,7 +198,7 @@ describe("useGameProgressActions", () => {
 	});
 
 	it("updates streak when the final attempt completes the puzzle", async () => {
-		checkWordMock.mockResolvedValueOnce(true);
+		checkWordMock.mockResolvedValueOnce(successfulValidation);
 		const savedProgress = {
 			...baseProgress,
 			attemptsUsed: MAX_ATTEMPTS - 1,

@@ -8,13 +8,7 @@ import { gameDndIds, useGameContext } from "@/context/GameContext";
 import { cn } from "@/lib/cn";
 import { ChevronsDown } from "lucide-react";
 import { toast } from "../ui/toast";
-
-const hintMessages = {
-	too_short: "Nice try! A word needs at least 2 letters to score.",
-	no_center: "Every word starts at the center—anchor your letters there!",
-	not_contiguous: "Your tiles need to stay touching like a proper word chain.",
-	mixed_axis: "One straight line only—keep it tidy and connected!",
-};
+import { hintMessages } from "@/data/hintMessages";
 
 const SubmitTray = () => {
 	const { progress, placementValidation, onSubmitCurrentAttempt, recallRackTiles } = useGameContext();

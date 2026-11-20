@@ -4,38 +4,60 @@ import { useCallback, type Dispatch, type SetStateAction } from "react";
 import { v4 as randomUUID } from "uuid";
 import { checkWord } from "@/actions/checkWord";
 import { toast } from "@/components/ui/toast";
-import { isStreakContinuous, type PlacementValidation } from "@/context/game-domain";
-import type { ScoreBreakdown } from "@/context/types";
+import { isStreakContinuous } from "@/context/game-domain";
+import type { OngoingAttemptTile } from "@/context/types";
 import { MAX_ATTEMPTS } from "@/game-config/constants";
 import type { StreakStorage, StoredProgress } from "@/context/game-storage";
-
+import { hintMessages } from "@/data/hintMessages";
 type UseGameProgressActionsArgs = {
 	savedProgress: StoredProgress;
 	setSavedProgress: Dispatch<SetStateAction<StoredProgress>>;
 	setStreakStorage: Dispatch<SetStateAction<StreakStorage>>;
-	placementValidation: PlacementValidation;
-	currentAttemptScore: ScoreBreakdown;
 	resetInteractionState: () => void;
+	placedTiles: OngoingAttemptTile[];
 };
 
 export const useGameProgressActions = ({
 	savedProgress,
 	setSavedProgress,
 	setStreakStorage,
-	placementValidation,
-	currentAttemptScore,
 	resetInteractionState,
+	placedTiles,
 }: UseGameProgressActionsArgs) => {
 	const onSubmitCurrentAttempt = useCallback(async () => {
 		if (savedProgress.status !== "in_progress") return;
 		if (savedProgress.attemptsUsed >= MAX_ATTEMPTS) return;
-		if (!placementValidation.isSubmittable || !placementValidation.axis) return;
-		const placementAxis = placementValidation.axis;
 
-		const candidateWord = placementValidation.candidateWord;
 		const attemptsLeft = Math.max(0, MAX_ATTEMPTS - savedProgress.attemptsUsed);
-		const prettyWord = candidateWord.toUpperCase();
 
+		const placementValidation = await checkWord({ puzzleId: savedProgress.puzzleId, placedTiles });
+		if (!placementValidation.isSubmittable) {
+			if (placementValidation.reason === "invalid_word")
+				toast.add({
+					type: "error",
+					title: "That one doesn't count",
+					description: `According to my records, that isn't a word. But you still have ${attemptsLeft} attempts left! Try again.`,
+				});
+			else if (placementValidation.reason === "server_error") {
+				toast.add({
+					type: "error",
+					title: "Something went wrong",
+					description: `We weren't able to complete that action. Try again later.`,
+				});
+			} else if (placementValidation.reason === "invalid_rack_tiles") {
+				toast.add({
+					type: "error",
+					title: "Invalid tile placement",
+					description: "Some tiles in your placement are not valid for this rack. Please reset and try again.",
+				});
+			} else {
+				const hintMessage = hintMessages[placementValidation.reason];
+				toast.add({ description: hintMessage, type: "warning" });
+			}
+			return;
+		}
+		const candidateWord = placementValidation.candidateWord;
+		const prettyWord = candidateWord.toUpperCase();
 		const wasAlreadyPlayed = savedProgress.attempts.some(attempt => attempt.word === candidateWord);
 		if (wasAlreadyPlayed) {
 			toast.add({
@@ -46,18 +68,10 @@ export const useGameProgressActions = ({
 			return;
 		}
 
-		const isValidWord = await checkWord(candidateWord, savedProgress.puzzleId);
-		if (!isValidWord) {
-			toast.add({
-				type: "error",
-				title: "That one doesn't count",
-				description: `According to my records, that isn't a word. But you still have ${attemptsLeft} attempts left! Try again.`,
-			});
-			return;
-		}
-
 		const attemptNumber = savedProgress.attemptsUsed + 1;
+		const currentAttemptScore = placementValidation.score;
 		const placementCells = placementValidation.orderedTiles.map(tile => tile.cellId);
+		const placementAxis = placementValidation.axis;
 		const rackTileIdsInPlacementOrder = placementValidation.orderedTiles.map(tile => tile.rackTileId);
 		const now = new Date().toISOString();
 
@@ -117,8 +131,6 @@ export const useGameProgressActions = ({
 					: `Great job! You got ${currentAttemptScore.total} points. That was your final attempt.`,
 		});
 	}, [
-		currentAttemptScore,
-		placementValidation,
 		resetInteractionState,
 		savedProgress.attempts,
 		savedProgress.attemptsUsed,
@@ -126,6 +138,7 @@ export const useGameProgressActions = ({
 		savedProgress.status,
 		setSavedProgress,
 		setStreakStorage,
+		placedTiles,
 	]);
 
 	const onGiveUpPuzzle = useCallback(() => {

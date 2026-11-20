@@ -1,9 +1,8 @@
-"use client";
-
 import { alphabet } from "../../api/_lib/alphabet";
 import { CELL_DROP_PREFIX, SLAM_BONUS_POINTS, TILE_DRAG_PREFIX } from "@/game-config/constants";
 import type { Axis, BoardTemplate, CellId, OngoingAttemptTile, RackTileId, ScoreBreakdown } from "@/context/types";
 
+export type PlacementValidationReason = "too_short" | "no_center" | "not_contiguous" | "mixed_axis";
 export type PlacementValidation =
 	| {
 			isSubmittable: true;
@@ -16,7 +15,7 @@ export type PlacementValidation =
 			axis: Axis | null;
 			candidateWord: string;
 			orderedTiles: OngoingAttemptTile[];
-			reason: "too_short" | "no_center" | "not_contiguous" | "mixed_axis";
+			reason: PlacementValidationReason;
 	  };
 
 export const isStreakContinuous = (puzzleId: number, lastCompletedPuzzleId?: number): boolean => {
