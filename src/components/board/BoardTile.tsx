@@ -129,7 +129,7 @@ const bonusLabel = bonus ? bonusLabels[bonus] : "";
 				{placedLetter ? (
 					<span className="font-semibold text-[clamp(12px,var(--tile-size)*0.3,24px)]">{placedLetter}</span>
 				) : (
-					<span className="font-oi text-[clamp(6px,var(--tile-size)*0.2,16px)]">{isCenter ? "★" : bonus}</span>
+					<span className="font-oi text-[clamp(6px,var(--tile-size)*0.2,16px)]">{isCenter ? "★" : bonusLabel}</span>
 				)}
 			</div>
 		</div>
