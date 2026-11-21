@@ -3,22 +3,22 @@ import { cn } from "@/lib/cn";
 
 const bonusTileStyles: Record<BonusTile, { label: string; surfaceClass: string; textClass: string }> = {
 	dl: {
-		label: "DL",
+		label: "2L",
 		surfaceClass: "bg-tile-dl-surface/60",
 		textClass: "text-tile-dl-text",
 	},
 	tl: {
-		label: "TL",
+		label: "3L",
 		surfaceClass: "bg-tile-tl-surface",
 		textClass: "text-tile-tl-text",
 	},
 	dw: {
-		label: "DW",
+		label: "2W",
 		surfaceClass: "bg-tile-dw-surface",
 		textClass: "text-tile-dw-text",
 	},
 	tw: {
-		label: "TW",
+		label: "3W",
 		surfaceClass: "bg-tile-tw-surface",
 		textClass: "text-tile-tw-text",
 	},
