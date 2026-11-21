@@ -20,6 +20,13 @@ const textColors = {
 	center: "text-dark",
 };
 
+const bonusLabels = {
+dw: "2W",
+dl: "2L",
+tw: "3W",
+tl: "3L"
+};
+
 const outlineColors = {
 	dw: "outline-[color-mix(in_oklab,var(--tile-dw-surface)_70%,var(--dark))]",
 	dl: "outline-[color-mix(in_oklab,var(--tile-dl-surface)_70%,var(--dark))]",
@@ -53,6 +60,7 @@ export function BoardTile({
 	const textColor = isCenter ? textColors.center : bonus ? textColors[bonus] : "";
 	const bgColor = isCenter ? bgColors.center : bonus ? bgColors[bonus] : colorScheme === "light" ? "bg-dark/20" : "bg-light/60";
 	const outlineColor = bonus ? outlineColors[bonus] : "outline-transparent";
+const bonusLabel = bonus ? bonusLabels[bonus] : "";
 
 	const tileValue = placedLetter ? alphabet[placedLetter.toLowerCase()] : null;
 	const hasAnyNeighbor = Boolean(hasLeftNeighbor || hasRightNeighbor || hasTopNeighbor || hasBottomNeighbor);
@@ -109,7 +117,7 @@ export function BoardTile({
 								textColor,
 							)}
 						>
-							{bonus}
+							{bonusLabel}
 						</span>
 						{isCenter && (
 							<div className="absolute bottom-0 left-0 w-full flex justify-center">
