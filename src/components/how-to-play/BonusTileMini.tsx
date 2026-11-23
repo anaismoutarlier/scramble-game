@@ -34,7 +34,9 @@ export function BonusTileMini({ bonus }: { bonus: BonusTile }) {
 			)}
 			aria-hidden="true"
 		>
-			<span className={cn("font-oi text-[9px] leading-4 opacity-80", tileStyle.textClass)}>{tileStyle.label}</span>
+			<span className={cn("font-port-lligat-slab text-base lining-nums leading-4 opacity-80", tileStyle.textClass)}>
+				{tileStyle.label}
+			</span>
 		</div>
 	);
 }
