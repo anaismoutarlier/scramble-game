@@ -1,4 +1,4 @@
-import type { PuzzleEnvelope, BoardCell, BoardTemplate, BonusTile, PuzzleDefinition, RackTiles } from "../../src/context/types";
+import type { PuzzleEnvelope, BoardCell, BoardTemplate, BonusTile, RackTiles } from "../../src/context/types";
 import { Redis } from "@upstash/redis";
 import moment from "moment-timezone";
 import { randomUUID } from "crypto";
@@ -6,9 +6,11 @@ import { getRandomInt } from "./utils.js";
 import { generateRackLetters } from "./generateRackLetters.js";
 import { calculateTopScoringWords } from "./bestPossibleWords.js";
 
+const MIN_BONUSES_BY_AXIS = 2;
+
 const redis = Redis.fromEnv();
 
-const boardTemplate: PuzzleDefinition["board"] = {
+const boardTemplate: BoardTemplate = {
 	centerCellId: "r3c3",
 	horizontalAxis: ["r3c0", "r3c1", "r3c2", "r3c3", "r3c4", "r3c5", "r3c6"],
 	verticalAxis: ["r0c3", "r1c3", "r2c3", "r3c3", "r4c3", "r5c3", "r6c3"],
@@ -33,35 +35,44 @@ const bonusTileTypes: BonusTile[] = ["dl", "dw", "tl", "tw"];
 const PUZZLE_DATE_CLAIM_TTL_SECONDS = 3 * 24 * 60 * 60;
 
 const generateBonusTiles = () => {
-	const bonusTileCount = getRandomInt(2, 6);
+	// generate list of bonus tiles of random length
+	const bonusTileCount = getRandomInt(4, 11);
 	const bonuses = Array.from({ length: bonusTileCount }, () => {
 		const index = getRandomInt(0, bonusTileTypes.length);
 		return bonusTileTypes[index];
 	});
 
-	const cells: BoardCell[] = Object.values(boardTemplate.cellsById).map(cell => ({
-		...cell,
-		coordinate: { ...cell.coordinate },
-		bonus: null,
-	}));
-	const cellsCopy = cells.filter(cell => !cell.isCenter);
+	const cellsMap = structuredClone(boardTemplate.cellsById);
 
+	const verticalCellCandidates = [...boardTemplate.verticalAxis].filter(c => c !== boardTemplate.centerCellId);
+	const horizontalCellCandidates = [...boardTemplate.horizontalAxis].filter(c => c !== boardTemplate.centerCellId);
+	let allCellCandidates = [...verticalCellCandidates, ...horizontalCellCandidates];
+
+	let verticalBonuses = 0;
+	let horizontalBonuses = 0;
 	for (const bonus of bonuses) {
-		if (cellsCopy.length === 0) break;
-		const index = getRandomInt(0, cellsCopy.length);
-		const selectedCell = cellsCopy[index];
-		const target = cells.find(cell => cell.id === selectedCell.id);
-		if (target) target.bonus = bonus;
-		cellsCopy.splice(index, 1);
+		const targetAxis =
+			verticalBonuses < MIN_BONUSES_BY_AXIS ? "vertical" : horizontalBonuses < MIN_BONUSES_BY_AXIS ? "horizontal" : "both";
+		let targetCandidates =
+			targetAxis === "vertical" ? verticalCellCandidates : targetAxis === "horizontal" ? horizontalCellCandidates : allCellCandidates;
+		if (targetCandidates.length === 0) targetCandidates = allCellCandidates;
+		if (targetCandidates.length === 0) break;
+
+		const index = getRandomInt(0, targetCandidates.length);
+		const selectedCell = targetCandidates[index];
+		const targetCell = cellsMap[selectedCell];
+
+		if (targetCell) {
+			targetCell.bonus = bonus;
+			if (boardTemplate.verticalAxis.includes(targetCell.id)) verticalBonuses++;
+			if (boardTemplate.horizontalAxis.includes(targetCell.id)) horizontalBonuses++;
+		}
+
+		targetCandidates.splice(index, 1);
+		if (targetAxis !== "both") allCellCandidates = allCellCandidates.filter(el => el !== selectedCell);
 	}
 
-	return cells.reduce(
-		(accumulator, cell): BoardTemplate["cellsById"] => {
-			accumulator[cell.id] = cell;
-			return accumulator;
-		},
-		{} as BoardTemplate["cellsById"],
-	);
+	return cellsMap;
 };
 
 const getLatestPuzzleIdFromList = async (): Promise<number> => {
@@ -126,7 +137,7 @@ export const generatePuzzleStructure = async ({ letters, claimToken }: { letters
 	};
 	const generation = {
 		seed: `${id}-${date}-${letters}`,
-		bonusDistributionVersion: "v1",
+		bonusDistributionVersion: "v2",
 		scoringVersion: "v1",
 		dictionaryVersion: "v1",
 		dateClaimToken: claimToken,
