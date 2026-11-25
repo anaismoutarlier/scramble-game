@@ -14,6 +14,7 @@ const boardTemplate: BoardTemplate = {
 	centerCellId: "r3c3",
 	horizontalAxis: ["r3c0", "r3c1", "r3c2", "r3c3", "r3c4", "r3c5", "r3c6"],
 	verticalAxis: ["r0c3", "r1c3", "r2c3", "r3c3", "r4c3", "r5c3", "r6c3"],
+	nbBonusTiles: 0,
 	cellsById: {
 		r0c3: { id: "r0c3", coordinate: { row: 0, column: 3 }, isCenter: false, axisMembership: "vertical", bonus: null },
 		r1c3: { id: "r1c3", coordinate: { row: 1, column: 3 }, isCenter: false, axisMembership: "vertical", bonus: null },
@@ -72,7 +73,7 @@ const generateBonusTiles = () => {
 		if (targetAxis !== "both") allCellCandidates = allCellCandidates.filter(el => el !== selectedCell);
 	}
 
-	return cellsMap;
+	return { cellsById: cellsMap, nbBonusTiles: bonusTileCount };
 };
 
 const getLatestPuzzleIdFromList = async (): Promise<number> => {
@@ -131,9 +132,11 @@ export const generatePuzzleStructure = async ({ letters, claimToken }: { letters
 	const id = await getNextPuzzleId();
 	console.log(`Puzzle id: ${id}.\nPuzzle date: ${date}.`);
 	const rackTiles = letterArr.map(letter => ({ id: randomUUID(), letter })) as unknown as RackTiles;
-	const board = {
+	const bonusTiles = generateBonusTiles();
+	const board: BoardTemplate = {
 		...structuredClone(boardTemplate),
-		cellsById: generateBonusTiles(),
+		cellsById: bonusTiles.cellsById,
+		nbBonusTiles: bonusTiles.nbBonusTiles,
 	};
 	const generation = {
 		seed: `${id}-${date}-${letters}`,

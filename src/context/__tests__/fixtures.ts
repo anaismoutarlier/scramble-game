@@ -8,6 +8,7 @@ export const createBoardTemplate = (): BoardTemplate => ({
 		r1c1: { id: "r1c1", coordinate: { row: 1, column: 1 }, isCenter: false, axisMembership: "both", bonus: "dl" },
 		r2c1: { id: "r2c1", coordinate: { row: 2, column: 1 }, isCenter: false, axisMembership: "both", bonus: "tw" },
 	},
+	nbBonusTiles: 4,
 	horizontalAxis: ["r0c0", "r0c1", "r0c2"],
 	verticalAxis: ["r0c1", "r1c1", "r2c1"],
 	centerCellId: "r0c1",

@@ -53,6 +53,7 @@ export interface BoardTemplate {
 	horizontalAxis: CellId[];
 	verticalAxis: CellId[];
 	centerCellId: CellId;
+	nbBonusTiles: number;
 }
 
 export interface PuzzleGenerationMetadata {
